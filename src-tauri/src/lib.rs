@@ -8,6 +8,7 @@
 
 pub mod config;
 pub mod i18n;
+pub mod identity;
 pub mod lenovo;
 pub mod power;
 pub mod scheduler;
@@ -717,6 +718,13 @@ pub fn run() {
             }
 
             apply_autostart(&handle, loaded.config.start_with_windows);
+
+            // Windows shows a name and an icon on a notification only for an app whose identity is
+            // registered, and an unpackaged app has no installer to do that for it.
+            match identity::register(APP_NAME, &handle.config().identifier) {
+                Ok(()) => log::info!("toast identity registered"),
+                Err(problem) => log::error!("toast identity: {problem}"),
+            }
 
             // First run: no config yet, so open the settings window rather than starting invisibly.
             if first_run {
