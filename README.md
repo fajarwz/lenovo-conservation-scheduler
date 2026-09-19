@@ -165,6 +165,9 @@ report, how to build and test, and what a change has to keep. The short version:
 it Lenovo-only, and add a test when the logic allows one. Reports from Lenovo models other than the
 one this was built on are especially useful.
 
+[AGENTS.md](AGENTS.md) documents the architecture, the conventions and the build traps that have
+already cost time - read it first if you are pointing a coding agent at this repository.
+
 ## Security
 
 Report vulnerabilities privately, either through GitHub's
