@@ -20,7 +20,10 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = ["tray-icon"] }
-tauri-plugin-notification = "2"
+# Sends the notifications itself so they carry the app's own AppUserModelID: the notification plugin
+# skips that id for an executable that is not installed, and the layer beneath it then reports the
+# toast as coming from PowerShell.
+tauri-winrt-notification = "0.7"
 tauri-plugin-autostart = "2"
 tauri-plugin-single-instance = "2"
 tauri-plugin-log = "2"

@@ -24,7 +24,7 @@ use tauri::menu::{CheckMenuItem, MenuBuilder, MenuEvent, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Emitter, Manager, RunEvent, State, WebviewUrl, WebviewWindowBuilder, Wry};
 use tauri_plugin_autostart::{MacosLauncher, ManagerExt as AutostartExt};
-use tauri_plugin_notification::NotificationExt;
+use tauri_winrt_notification::Toast;
 
 use config::{Action, Config};
 use i18n::{Lang, APP_NAME};
@@ -429,6 +429,32 @@ fn open_settings(app: &AppHandle) {
 
 // --------------------------------------------------------------- integrations
 
+/// Tells Windows who the app is, so its notifications carry the app's own name and icon.
+///
+/// An unpackaged app has no installer to do this, and both halves are needed: the identity values,
+/// and a real image file on disk for `IconUri` to point at - with that value aimed at the executable
+/// the notification arrived with no icon at all.
+fn register_identity(app: &AppHandle) {
+    let directory = match app.path().app_local_data_dir() {
+        Ok(directory) => directory,
+        Err(error) => {
+            log::error!("toast identity: no local data directory: {error}");
+            return;
+        }
+    };
+    let icon = match identity::write_icon(&directory) {
+        Ok(icon) => icon,
+        Err(problem) => {
+            log::error!("toast identity: {problem}");
+            return;
+        }
+    };
+    match identity::register(APP_NAME, &app.config().identifier, &icon) {
+        Ok(()) => log::info!("toast identity registered, icon at {}", icon.display()),
+        Err(problem) => log::error!("toast identity: {problem}"),
+    }
+}
+
 fn notify(app: &AppHandle, action: Action) {
     let state = app.state::<AppState>();
     let (wanted, lang) = {
@@ -445,15 +471,22 @@ fn notify(app: &AppHandle, action: Action) {
         Action::ConservationOff => strings.notification_off,
     };
     log::info!("notified: {body}");
+    send_toast(app, body);
+}
 
-    if let Err(error) = app
-        .notification()
-        .builder()
-        .title(APP_NAME)
-        .body(body)
-        .show()
-    {
-        log::error!("notification failed: {error}");
+/// Sends a Windows toast under the app's own identity.
+///
+/// Deliberately not through `tauri-plugin-notification`: that plugin leaves the AppUserModelID unset
+/// whenever the executable is not installed (it looks for a `target\debug` or `target\release`
+/// parent), and the notify-rust layer under it then falls back to PowerShell's own id - which is why
+/// an uninstalled build's notifications carry PowerShell's icon and name. `identity::register` has
+/// already told Windows who this app is, so the toast is sent with that id instead.
+fn send_toast(app: &AppHandle, body: &str) {
+    let identifier = app.config().identifier.clone();
+    let toast = Toast::new(&identifier).title(APP_NAME).text1(body);
+    match toast.show() {
+        Ok(()) => log::info!("notification shown as {identifier}"),
+        Err(error) => log::error!("notification failed: {error}"),
     }
 }
 
@@ -635,16 +668,7 @@ fn notify_background(app: &AppHandle) {
     let lang = lock(&state.inner).config.locale;
     let body = lang.strings().notification_background;
     log::info!("told the user it is running in the tray: {body}");
-
-    if let Err(error) = app
-        .notification()
-        .builder()
-        .title(APP_NAME)
-        .body(body)
-        .show()
-    {
-        log::error!("notification failed: {error}");
-    }
+    send_toast(app, body);
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -656,7 +680,6 @@ pub fn run() {
             log::info!("another launch: showing the settings window");
             open_settings(app);
         }))
-        .plugin(tauri_plugin_notification::init())
         .plugin(log_plugin())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
@@ -719,12 +742,7 @@ pub fn run() {
 
             apply_autostart(&handle, loaded.config.start_with_windows);
 
-            // Windows shows a name and an icon on a notification only for an app whose identity is
-            // registered, and an unpackaged app has no installer to do that for it.
-            match identity::register(APP_NAME, &handle.config().identifier) {
-                Ok(()) => log::info!("toast identity registered"),
-                Err(problem) => log::error!("toast identity: {problem}"),
-            }
+            register_identity(&handle);
 
             // First run: no config yet, so open the settings window rather than starting invisibly.
             if first_run {

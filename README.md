@@ -38,10 +38,12 @@ around 75-80%, and have it switch off early enough to charge to 100% before leav
 - **One copy at a time.** Launching the executable again does not start a second copy: the instance
   already running shows its window and the new process exits. Two copies would mean two tray icons
   and two schedulers racing over the same setting.
-- **Notifications carry the app's own name and icon.** Windows attributes a notification to an app
-  identity, and an app without an installer has to register its own (two values under
-  `HKCU\Software\Classes\AppUserModelId\com.fajarwz.lenovo-conservation-scheduler`). Without that the
-  toast arrives nameless and with a generic icon - when it appears at all.
+- **Notifications are the app's own.** Windows attributes a toast to an app identity, and an app
+  without an installer has to do two things: register that identity (two values under
+  `HKCU\Software\Classes\AppUserModelId\com.fajarwz.lenovo-conservation-scheduler`) and send the toast
+  under it. This app does both. Tauri's notification plugin deliberately leaves that id unset for an
+  executable that is not installed, so a build run straight from `target/release` would otherwise
+  report itself as PowerShell - its icon and its name.
 - **It tells you when it is invisible.** With settings already saved, launching it goes straight to
   the tray, so it sends a notification saying it is running in the background. A start from the
   Windows login entry stays quiet on purpose.

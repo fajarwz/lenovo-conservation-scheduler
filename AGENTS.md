@@ -79,6 +79,10 @@ Rules worth keeping:
   expects *now* and writes only if the current mode differs. Startup, resume, a slept-through event,
   duplicates and edits are all the same code.
 - **No polling.** One waitable timer plus Windows events. While idle the process is asleep.
+- **Notifications are sent directly, under the app's own identity.** `identity.rs` registers the
+  AppUserModelID and `send_toast` in `lib.rs` sends with it; `tauri-plugin-notification` is not a
+  dependency on purpose, because it leaves that id unset for an executable that is not installed and
+  the toast then reports itself as PowerShell.
 - **One instance, one tray icon.** `tauri-plugin-single-instance` is registered before every other
   plugin, so a second launch hands over to `open_settings` in the running instance and exits instead
   of adding a tray icon and a second scheduler. The autostart entry passes `--autostart`, which is

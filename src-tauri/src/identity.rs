@@ -10,19 +10,38 @@
 //!
 //! Without it the toast arrives with no app name and a generic icon - when it appears at all.
 
+use std::fs;
+use std::path::{Path, PathBuf};
+
 use winreg::enums::HKEY_CURRENT_USER;
 use winreg::RegKey;
 
-/// Writes the app's toast identity. Called on every start: the values are tiny and rewriting them
-/// keeps the icon path correct if the executable ever moves.
-pub fn register(app_name: &str, identifier: &str) -> Result<(), String> {
-    let executable = std::env::current_exe()
-        .map_err(|error| format!("could not find the executable's own path: {error}"))?
-        .to_string_lossy()
-        .to_string();
+/// The app's own icon, compiled into the binary.
+///
+/// Windows wants a path to an *image* for the toast identity (`IconUri`), and an unpackaged app has
+/// nothing else to put on disk: pointing that value at the executable itself produced a notification
+/// with no icon at all.
+const ICON_PNG: &[u8] = include_bytes!("../icons/128x128.png");
 
+/// Writes the icon where `IconUri` can point at it, and returns the path. Called on every start, so
+/// it only writes when the file is missing or not the icon this build carries.
+pub fn write_icon(directory: &Path) -> Result<PathBuf, String> {
+    let path = directory.join("icon.png");
+    if fs::metadata(&path).map(|found| found.len()).ok() == Some(ICON_PNG.len() as u64) {
+        return Ok(path);
+    }
+    fs::create_dir_all(directory)
+        .map_err(|error| format!("could not create {}: {error}", directory.display()))?;
+    fs::write(&path, ICON_PNG)
+        .map_err(|error| format!("could not write {}: {error}", path.display()))?;
+    Ok(path)
+}
+
+/// Writes the app's toast identity. Called on every start: the values are tiny and rewriting them
+/// keeps the icon path correct if the executable or the data directory ever moves.
+pub fn register(app_name: &str, identifier: &str, icon: &Path) -> Result<(), String> {
     let path = key_path(identifier);
-    write(&path, app_name, &executable)
+    write(&path, app_name, &icon.to_string_lossy())
 }
 
 /// The identity of the app as Windows notification centre will show it.
@@ -67,6 +86,19 @@ mod tests {
         RegKey::predef(HKEY_CURRENT_USER)
             .delete_subkey_all(&path)
             .expect("cleanup");
+    }
+
+    #[test]
+    fn the_icon_lands_on_disk_with_this_builds_bytes() {
+        let directory = std::env::temp_dir().join("lenovo-conservation-scheduler-icon-test");
+        let path = write_icon(&directory).expect("write");
+        assert_eq!(fs::read(&path).expect("read"), ICON_PNG);
+
+        // Running again with the icon already there is not an error: this happens on every start.
+        write_icon(&directory).expect("write again");
+        assert_eq!(fs::read(&path).expect("read"), ICON_PNG);
+
+        fs::remove_file(&path).ok();
     }
 
     #[test]
