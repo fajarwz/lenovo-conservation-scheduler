@@ -405,10 +405,14 @@ export default function App() {
             checked={draft.notifyOnChange}
             onChange={(notifyOnChange) => editConfig({ notifyOnChange })}
           />
-          <label className="flex items-center">
-            <span className="mr-2">{t("settings.language")}</span>
+          {/* One grid for both rows: the first column is as wide as the longest label, so the two
+              dropdowns start at the same x. `max-content` rather than a fixed width, because the
+              labels are a different length in each language. */}
+          <div className="grid grid-cols-[max-content_max-content] items-center gap-x-3 gap-y-2">
+            <label htmlFor="settings-language">{t("settings.language")}</label>
             <select
-              className="field"
+              id="settings-language"
+              className="field min-w-36"
               value={draft.locale}
               onChange={(event) => editConfig({ locale: event.target.value as Locale })}
             >
@@ -418,11 +422,11 @@ export default function App() {
                 </option>
               ))}
             </select>
-          </label>
-          <label className="flex items-center">
-            <span className="mr-2">{t("settings.timeFormat")}</span>
+
+            <label htmlFor="settings-time-format">{t("settings.timeFormat")}</label>
             <select
-              className="field"
+              id="settings-time-format"
+              className="field min-w-36"
               value={draft.timeFormat}
               onChange={(event) => editConfig({ timeFormat: event.target.value as TimeFormat })}
             >
@@ -432,7 +436,7 @@ export default function App() {
                 </option>
               ))}
             </select>
-          </label>
+          </div>
         </section>
       </main>
     </LocaleProvider>
