@@ -157,3 +157,7 @@ With `npm run tauri dev` the dev URL is the *correct* target, because Vite is ru
 | `src/api.ts` | typed wrappers for the three commands and the state event |
 | `src/i18n/*.ts(x)` | the window's dictionaries, `t()`, and the locale provider |
 | `src/index.css` | Tailwind entry: base styles plus the shared `@layer components` recipes |
+
+## License
+
+MIT - see [LICENSE](LICENSE).
