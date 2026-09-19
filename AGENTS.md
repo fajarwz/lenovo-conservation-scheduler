@@ -76,6 +76,10 @@ Rules worth keeping:
   expects *now* and writes only if the current mode differs. Startup, resume, a slept-through event,
   duplicates and edits are all the same code.
 - **No polling.** One waitable timer plus Windows events. While idle the process is asleep.
+- **One instance, one tray icon.** `tauri-plugin-single-instance` is registered before every other
+  plugin, so a second launch hands over to `open_settings` in the running instance and exits instead
+  of adding a tray icon and a second scheduler. The autostart entry passes `--autostart`, which is
+  how a login start is told apart from a double-click.
 - **The window costs nothing until it is opened.** It is not declared in `tauri.conf.json` and is
   created on demand; closing it destroys the WebView2 tree. Keep it that way.
 - **The frontend never polls either.** It loads once on mount and then re-renders from the snapshot

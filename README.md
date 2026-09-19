@@ -42,6 +42,42 @@ around 75-80%, and have it switch off early enough to charge to 100% before leav
   the tray, so it sends a notification saying it is running in the background. A start from the
   Windows login entry stays quiet on purpose.
 
+## Performance
+
+Measured on the release build, on the laptop this was written for (Lenovo Yoga Slim 7 14IMH9,
+Windows 11). The whole process tree is counted - the app plus every WebView2 process it starts - so
+these are the numbers Task Manager shows for it.
+
+| State | Processes | Working set | Private memory | CPU used while idle |
+| --- | --- | --- | --- | --- |
+| Running, settings never opened | 1 | ~16 MB | ~4 MB | 0.000 s over 62 s |
+| Settings window open | 7 | ~350 MB | ~180 MB | the browser's, while you look at it |
+| After closing the window | 1 | ~23 MB | ~5 MB | 0.000 s |
+
+- **Battery.** Idle, the process is asleep on a waitable timer: no polling loop, no repeating
+  interval, nothing to wake up for. It used 0.000 s of CPU across a full minute of idling, sampled
+  62 seconds apart, so its cost is below the clock's own resolution. It wakes a handful of times a
+  day - once per scheduled change, and once when you edit a setting.
+- **Memory.** About 4 MB private while idle: that is the entire cost of having the tray icon there.
+  The ~350 MB belongs to WebView2, Windows' own Chromium engine, and only while the settings window
+  is open. No app can shrink Chromium; it can only avoid starting it, which is why the window is
+  created on demand and destroyed on close. Close it and all six browser processes go away, leaving
+  the one process at about 5 MB.
+- **Disk and network.** While idle the app owns no sockets (measured: 0) and writes nothing. The
+  only writes in normal use are the log line for a scheduled change and the config file when you
+  edit a setting.
+- **One copy.** Launching it again does not add a second icon or a second scheduler: the running
+  instance shows its window and the new process exits.
+
+If you would rather check than take my word for it:
+
+```powershell
+$before = (Get-Process lenovo-conservation-scheduler).CPU
+Start-Sleep 60
+$after = (Get-Process lenovo-conservation-scheduler).CPU
+"CPU used in 60 s: {0:N3} s" -f ($after - $before)
+```
+
 ## Requirements
 
 - Windows 10/11 on a Lenovo laptop that supports Conservation Mode.
