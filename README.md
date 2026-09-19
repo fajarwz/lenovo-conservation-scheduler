@@ -30,6 +30,10 @@ around 75-80%, and have it switch off early enough to charge to 100% before leav
 - **Reconciliation.** Whenever it wakes - at startup, after a resume, after an edit - it asks "what
   does the schedule expect right now?" and writes only if the current mode differs. That single rule
   is what makes a laptop that slept through 05:00 correct itself on waking at 07:30.
+- **A tray menu** for opening the settings, switching Conservation Mode by hand, and exiting. Left-click
+  the icon to open the window, right-click for the menu:
+
+  <img src="assets/screenshots/tray.png" width="330" alt="The tray icon's right-click menu: the battery percentage and Conservation Mode state, Open settings, the two manual switches, and Exit">
 - **Manual changes win until the next occurrence.** Flip the mode by hand from the window or the tray
   and the schedule leaves it alone until its next scheduled change.
 - **Nothing runs until you need it.** At startup only the tray icon exists. The settings window -
