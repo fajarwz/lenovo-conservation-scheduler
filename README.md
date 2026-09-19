@@ -90,10 +90,20 @@ $after = (Get-Process lenovo-conservation-scheduler).CPU
 
 Grab the latest installer from [Releases](../../releases/latest) and run it: it installs per user and
 needs no administrator rights. The standalone executable on the same page needs nothing beside it and
-keeps everything in your own profile.
+keeps everything in your own profile - but do not move it after the first run, because the "start with
+Windows" entry records the path it was launched from.
 
-Releases are **unsigned**, so Windows SmartScreen warns on the first run ("More info" -> "Run
-anyway"). To build it yourself instead, see [Development](#development).
+Releases are **unsigned**, so Windows warns on the first run: SmartScreen's "Windows protected your
+PC" dialog for any file that was downloaded. Nothing inside the app can avoid that - Windows trusts
+software by signature and reputation, and this project has neither yet. Two ways through it:
+
+- Click **More info** -> **Run anyway** each time you download a new copy, or
+- clear the file's mark-of-the-web first, which is Windows' own way of recording that you trust it:
+  right-click the file -> **Properties** -> tick **Unblock** -> **OK**, or in PowerShell
+  `Unblock-File .\lenovo-conservation-scheduler-1.0.0-portable.exe`.
+
+The release notes list a SHA-256 for each download, so you can check the file you have is the one that
+was built.
 
 ## Requirements
 
