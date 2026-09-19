@@ -59,8 +59,9 @@
     @apply rounded px-1.5 text-base leading-none text-neutral-400 hover:text-red-600 dark:text-neutral-500 dark:hover:text-red-400;
   }
 
-  /* Conservation Mode switch. A styled checkbox, so keyboard and screen-reader behaviour comes for
-     free: focus is real, space toggles it, and the knob is drawn with ::after. */
+  /* Every boolean in the UI: a styled checkbox, so keyboard and screen-reader behaviour comes for
+     free: focus is real, space toggles it, and the knob is drawn with ::after. Used by the
+     conservation switch, the labelled settings switches and a schedule row's On column. */
   .switch {
     @apply relative h-[18px] w-[34px] cursor-pointer appearance-none rounded-full border border-neutral-300 bg-neutral-200 align-middle transition-colors dark:border-neutral-600 dark:bg-neutral-600;
   }

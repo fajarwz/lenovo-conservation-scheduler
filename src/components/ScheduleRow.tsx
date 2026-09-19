@@ -22,9 +22,11 @@ export function ScheduleRow({
       <td className="cell">
         <input
           type="checkbox"
-          className="accent-sky-600"
+          role="switch"
+          className="switch"
           checked={schedule.enabled}
           aria-label={t("scheduler.on")}
+          title={schedule.enabled ? t("common.on") : t("common.off")}
           onChange={(event) => onEdit({ enabled: event.target.checked })}
         />
       </td>

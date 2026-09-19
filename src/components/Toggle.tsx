@@ -1,4 +1,4 @@
-/** Labelled checkbox, so the input styling lives in one place. */
+/** Labelled switch, so the input styling lives in one place. */
 export function Toggle({
   label,
   checked,
@@ -9,10 +9,11 @@ export function Toggle({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex items-center">
+    <label className="flex items-center gap-2">
       <input
         type="checkbox"
-        className="mr-2 accent-sky-600"
+        role="switch"
+        className="switch"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
       />
