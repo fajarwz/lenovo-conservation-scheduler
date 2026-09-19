@@ -14,6 +14,8 @@ export const id: typeof enUS = {
   "common.unavailable": "Tidak tersedia",
   "common.loading": "Memuat…",
 
+  "status.saving": "Menyimpan…",
+  "status.saved": "Tersimpan",
   "load.failed": "Gagal memuat pengaturan: {error}",
 
   "battery.title": "Baterai",
@@ -26,10 +28,16 @@ export const id: typeof enUS = {
   "battery.unavailableFallback": "Mode konservasi tidak tersedia.",
 
   "scheduler.title": "Penjadwal",
+  "scheduler.add": "Tambah jadwal",
   "scheduler.apply": "Terapkan jadwal secara otomatis",
+  "scheduler.next": "Berikutnya: {action} · {day} · {time}",
   "scheduler.nothing": "Belum ada jadwal.",
-  "scheduler.next": "Berikutnya: {action} pukul {time}",
+  "scheduler.off": "Jadwal sedang nonaktif, jadi tidak ada yang berubah sendiri.",
   "scheduler.empty": "Belum ada jadwal.",
+  "scheduler.presetWeekdays": "Sen–Jum",
+  "scheduler.presetAll": "Semua",
+  "scheduler.removed": "Jadwal dihapus.",
+  "scheduler.undo": "Urungkan",
   "scheduler.on": "Aktif",
   "scheduler.time": "Waktu",
   "scheduler.days": "Hari",
@@ -43,10 +51,6 @@ export const id: typeof enUS = {
   "settings.startWithWindows": "Jalankan saat Windows mulai",
   "settings.notify": "Tampilkan notifikasi saat mode berubah",
   "settings.language": "Bahasa",
-
-  "footer.add": "Tambah jadwal",
-  "footer.save": "Simpan",
-  "footer.saved": "Tersimpan",
 
   "day.monday": "Sen",
   "day.tuesday": "Sel",

@@ -61,6 +61,9 @@ export const DAYS: Day[] = [
   "sunday",
 ];
 
+/** The common case, offered as a one-click preset next to the day buttons. */
+export const WEEKDAYS: Day[] = DAYS.slice(0, 5);
+
 export function newScheduleId(): string {
   return `s${Date.now().toString(16)}${Math.floor(Math.random() * 0x10000).toString(16)}`;
 }

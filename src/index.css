@@ -39,6 +39,19 @@
     @apply border-sky-600 font-semibold text-sky-700 dark:border-sky-500 dark:text-sky-400;
   }
 
+  /* Quiet variants: small buttons inside a card, an inline preset, and a row's remove control. */
+  .btn-sm {
+    @apply px-2 py-0.5 text-xs;
+  }
+
+  .preset {
+    @apply rounded px-1 text-[11px] whitespace-nowrap text-neutral-500 hover:text-sky-600 dark:text-neutral-400 dark:hover:text-sky-400;
+  }
+
+  .row-remove {
+    @apply rounded px-1.5 text-base leading-none text-neutral-400 hover:text-red-600 dark:text-neutral-500 dark:hover:text-red-400;
+  }
+
   /* Conservation Mode switch. A styled checkbox, so keyboard and screen-reader behaviour comes for
      free: focus is real, space toggles it, and the knob is drawn with ::after. */
   .switch {
