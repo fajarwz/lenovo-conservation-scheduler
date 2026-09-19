@@ -1,17 +1,20 @@
-import type { Action, Day, Schedule } from "../api";
+import type { Action, Day, Schedule, TimeFormat } from "../api";
 import { useTranslation } from "../i18n";
 import { DayPicker } from "./DayPicker";
+import { TimeField } from "./TimeField";
 import { Toggle } from "./Toggle";
 
 /** One editable schedule line. */
 export function ScheduleRow({
   schedule,
+  timeFormat,
   onEdit,
   onToggleDay,
   onSetDays,
   onDelete,
 }: {
   schedule: Schedule;
+  timeFormat: TimeFormat;
   onEdit: (change: Partial<Schedule>) => void;
   onToggleDay: (day: Day) => void;
   onSetDays: (days: Day[]) => void;
@@ -29,11 +32,11 @@ export function ScheduleRow({
         />
       </td>
       <td className="cell">
-        <input
-          type="time"
-          className="field"
-          value={schedule.time}
-          onChange={(event) => onEdit({ time: event.target.value })}
+        <TimeField
+          time={schedule.time}
+          format={timeFormat}
+          label={t("scheduler.time")}
+          onChange={(time) => onEdit({ time })}
         />
       </td>
       <td className="cell">

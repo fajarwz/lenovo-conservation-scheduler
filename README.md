@@ -38,6 +38,10 @@ around 75-80%, and have it switch off early enough to charge to 100% before leav
 - **One copy at a time.** Launching the executable again does not start a second copy: the instance
   already running shows its window and the new process exits. Two copies would mean two tray icons
   and two schedulers racing over the same setting.
+- **Notifications carry the app's own name and icon.** Windows attributes a notification to an app
+  identity, and an app without an installer has to register its own (two values under
+  `HKCU\Software\Classes\AppUserModelId\com.fajarwz.lenovo-conservation-scheduler`). Without that the
+  toast arrives nameless and with a generic icon - when it appears at all.
 - **It tells you when it is invisible.** With settings already saved, launching it goes straight to
   the tray, so it sends a notification saying it is running in the background. A start from the
   Windows login entry stays quiet on purpose.
@@ -97,6 +101,7 @@ Configuration is one JSON file at
   "startWithWindows": false,
   "notifyOnChange": true,
   "locale": "en-US",
+  "timeFormat": "24h",
   "schedules": [
     {
       "id": "weekday-morning",
@@ -117,6 +122,15 @@ defaults are used, so nothing is lost silently; missing or unknown fields fall b
 A fresh install uses whatever Windows is set to, and the value is read leniently - `en`, `en-GB`,
 `id-ID` all work, and anything unrecognised falls back to the OS language rather than failing the
 file.
+
+`timeFormat` is how times are written in the window: `24h` for `17:00`, `12h` for `5:00 PM`. It is a
+separate choice from the language on purpose - plenty of people read English and still write 17:30 -
+and a fresh install again follows Windows. The file always stores 24-hour `HH:MM` in `time` whatever
+this says: the setting changes what you read, never what is saved.
+
+The time in a schedule row is picked from dropdowns rather than a browser time field, because
+Chromium's own field takes its format from Windows and ignores the language attribute, so it cannot
+follow this setting.
 
 ## Adding a language
 

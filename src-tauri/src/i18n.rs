@@ -68,9 +68,77 @@ impl<'de> Deserialize<'de> for Lang {
 
 const LANG_INDONESIAN: u16 = 0x21;
 
+/// `LOCALE_USER_DEFAULT`: the settings of whoever is logged in. `LOCALE_ITIME` is the one that says
+/// whether Windows writes times as 24-hour ("1") or with AM/PM ("0").
+const LOCALE_USER_DEFAULT: u32 = 0x0400;
+const LOCALE_ITIME: u32 = 0x0000_0023;
+const LOCALE_BUFFER: usize = 8;
+
 #[link(name = "kernel32")]
 extern "system" {
     fn GetUserDefaultUILanguage() -> u16;
+    fn GetLocaleInfoW(locale: u32, kind: u32, buffer: *mut u16, size: i32) -> i32;
+}
+
+/// How times are written. Deliberately not part of the language: plenty of people read English and
+/// still write 17:30, so it is its own choice, defaulting to whatever Windows is set to.
+#[derive(Serialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum TimeFormat {
+    #[default]
+    #[serde(rename = "24h")]
+    TwentyFourHour,
+    #[serde(rename = "12h")]
+    TwelveHour,
+}
+
+impl TimeFormat {
+    /// Reads a config value such as `"12h"` or `"24h"`. Anything else is `None`, which the caller
+    /// turns into the OS setting.
+    pub fn parse(value: &str) -> Option<Self> {
+        match value.trim().to_ascii_lowercase().as_str() {
+            "24h" | "24" | "h24" | "24-hour" => Some(TimeFormat::TwentyFourHour),
+            "12h" | "12" | "h12" | "12-hour" | "am/pm" | "ampm" => Some(TimeFormat::TwelveHour),
+            _ => None,
+        }
+    }
+
+    /// What Windows is set to.
+    pub fn detect() -> Self {
+        let mut buffer = [0u16; LOCALE_BUFFER];
+        // SAFETY: a fixed-size buffer is passed together with its own length, and the call writes at
+        // most that many UTF-16 units into it.
+        let written = unsafe {
+            GetLocaleInfoW(
+                LOCALE_USER_DEFAULT,
+                LOCALE_ITIME,
+                buffer.as_mut_ptr(),
+                buffer.len() as i32,
+            )
+        };
+        // A failed query keeps 24-hour: it is the unambiguous one, and the setting exists precisely
+        // so the user can say otherwise.
+        if written <= 1 {
+            return TimeFormat::TwentyFourHour;
+        }
+        if buffer[0] == u16::from(b'1') {
+            TimeFormat::TwentyFourHour
+        } else {
+            TimeFormat::TwelveHour
+        }
+    }
+}
+
+/// A malformed value falls back to the OS setting rather than failing the whole file, the same rule
+/// the language follows.
+impl<'de> Deserialize<'de> for TimeFormat {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let value = Option::<serde_json::Value>::deserialize(deserializer)?;
+        Ok(value
+            .as_ref()
+            .and_then(serde_json::Value::as_str)
+            .and_then(TimeFormat::parse)
+            .unwrap_or_else(TimeFormat::detect))
+    }
 }
 
 /// Fills `{}` placeholders left to right, so a translation is free to reorder the parts.
@@ -283,5 +351,28 @@ mod tests {
     #[test]
     fn detection_reports_a_supported_language() {
         assert!(matches!(Lang::detect(), Lang::EnUs | Lang::Id));
+    }
+
+    #[test]
+    fn a_time_format_parses_from_the_config_or_falls_back_to_windows() {
+        assert_eq!(TimeFormat::parse("24h"), Some(TimeFormat::TwentyFourHour));
+        assert_eq!(TimeFormat::parse("12h"), Some(TimeFormat::TwelveHour));
+        assert_eq!(TimeFormat::parse("12H"), Some(TimeFormat::TwelveHour));
+        assert_eq!(TimeFormat::parse("nonsense"), None);
+
+        // Whatever Windows says, it has to be one of the two.
+        assert!(matches!(
+            TimeFormat::detect(),
+            TimeFormat::TwentyFourHour | TimeFormat::TwelveHour
+        ));
+
+        let chosen: crate::config::Config =
+            serde_json::from_str(r#"{"timeFormat":"12h"}"#).expect("load");
+        assert_eq!(chosen.time_format, TimeFormat::TwelveHour);
+
+        // An unreadable value is the OS setting, never an error.
+        let nonsense: crate::config::Config =
+            serde_json::from_str(r#"{"timeFormat":"nonsense"}"#).expect("load");
+        assert_eq!(nonsense.time_format, TimeFormat::detect());
     }
 }

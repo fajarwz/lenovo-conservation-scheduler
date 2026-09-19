@@ -51,6 +51,14 @@ export const id: typeof enUS = {
   "settings.startWithWindows": "Jalankan saat Windows mulai",
   "settings.notify": "Tampilkan notifikasi saat mode berubah",
   "settings.language": "Bahasa",
+  "settings.timeFormat": "Format waktu",
+
+  "timeFormat.24h": "24 jam (17:00)",
+  "timeFormat.12h": "12 jam (5:00 PM)",
+
+  "timeField.hour": "Jam",
+  "timeField.minute": "Menit",
+  "timeField.amPm": "AM atau PM",
 
   "day.long.monday": "Senin",
   "day.long.tuesday": "Selasa",

@@ -5,7 +5,7 @@
 //! This module deliberately has no Tauri dependency: the file path is passed in, which keeps
 //! everything here unit-testable without an app handle.
 
-use crate::i18n::{self, Lang};
+use crate::i18n::{self, Lang, TimeFormat};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fs;
@@ -151,6 +151,8 @@ pub struct Config {
     pub notify_on_change: bool,
     /// The language of the window, the tray and notifications.
     pub locale: Lang,
+    /// How times are written in the window. Defaults to whatever Windows is set to.
+    pub time_format: TimeFormat,
     pub schedules: Vec<Schedule>,
 }
 
@@ -160,8 +162,10 @@ impl Default for Config {
             schedule_enabled: true,
             start_with_windows: true,
             notify_on_change: true,
-            // A first run already speaks the language Windows is set to.
+            // A first run already speaks the language Windows is set to...
             locale: Lang::detect(),
+            // ...and writes times the way Windows does.
+            time_format: TimeFormat::detect(),
             schedules: Vec::new(),
         }
     }
@@ -332,6 +336,7 @@ mod tests {
             start_with_windows: false,
             notify_on_change: true,
             locale: Lang::Id,
+            time_format: TimeFormat::TwelveHour,
             schedules: vec![
                 Schedule::new("morning", "05:00", weekdays(), Action::ConservationOff),
                 Schedule::new("work", "09:00", weekdays(), Action::ConservationOn),

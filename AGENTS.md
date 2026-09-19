@@ -59,18 +59,21 @@ no admin rights, no service.
 | `src-tauri/src/lenovo.rs` | the only Lenovo FFI: Vantage's `PowerBattery.dll` (`unsafe`) |
 | `src-tauri/src/power.rs` | battery percentage, AC state, charging flag (kernel32) |
 | `src-tauri/src/i18n.rs` | the strings Rust needs itself: tray menu, notifications, errors |
+| `src-tauri/src/identity.rs` | registers the app's toast identity so Windows shows its name and icon |
 | `src-tauri/src/lib.rs` | state, commands, tray menu, the single scheduler thread |
 | `src/App.tsx` | the window: state, auto-save, the three cards |
-| `src/components/*` | `Fact`, `Toggle`, `Banner`, `DayPicker`, `ScheduleRow` |
+| `src/components/*` | `Fact`, `Toggle`, `TimeField`, `Banner`, `DayPicker`, `ScheduleRow` |
 | `src/api.ts` | typed wrappers for the three commands and the state event |
-| `src/i18n/*` | the window's dictionaries, `t()` and the locale provider |
+| `src/i18n/*` | the window's dictionaries, `t()`, and `time.ts` for formatting times |
 
 Rules worth keeping:
 
 - **Logic modules stay free of `tauri::`.** Pass paths and handles in as parameters and resolve app
   directories in `lib.rs`. That is what keeps the suite runnable without an `AppHandle`.
-- **`unsafe` lives only in `lenovo.rs` and `timer.rs`**, one block per native call, each with a
-  SAFETY comment. Read the vendor header before changing a signature: a wrong parameter count
+- **`unsafe` lives in the modules that call Windows**, one block per native call, each with a
+  SAFETY comment: `lenovo.rs` (the vendor DLL), `timer.rs` (the waitable timer and resume
+  notifications), `power.rs` (`GetSystemPowerStatus`) and `i18n.rs` (`GetUserDefaultUILanguage`,
+  `GetLocaleInfoW`). Read the vendor header before changing a signature: a wrong parameter count
   corrupts memory instead of failing to compile.
 - **One reconcile path.** The scheduler never applies "this event's action"; it asks what the schedule
   expects *now* and writes only if the current mode differs. Startup, resume, a slept-through event,

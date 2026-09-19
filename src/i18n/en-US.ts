@@ -50,6 +50,14 @@ export const enUS = {
   "settings.startWithWindows": "Start with Windows",
   "settings.notify": "Show a notification when the mode changes",
   "settings.language": "Language",
+  "settings.timeFormat": "Time format",
+
+  "timeFormat.24h": "24-hour (17:00)",
+  "timeFormat.12h": "12-hour (5:00 PM)",
+
+  "timeField.hour": "Hour",
+  "timeField.minute": "Minute",
+  "timeField.amPm": "AM or PM",
 
   "day.long.monday": "Monday",
   "day.long.tuesday": "Tuesday",

@@ -6,6 +6,7 @@ import {
   type Schedule,
   type Snapshot,
   type Status,
+  type TimeFormat,
   getState,
   newScheduleId,
   onStateChanged,
@@ -24,6 +25,7 @@ import {
   type TranslationKey,
   type TranslationParams,
 } from "./i18n";
+import { TIME_FORMATS, formatTime } from "./i18n/time";
 
 /** How long the typing can pause before a change is written. */
 const SAVE_DELAY_MS = 500;
@@ -65,7 +67,7 @@ function chargingText(status: Status, t: Translate, unavailable: string): string
 }
 
 /** Next switch as one status line, with the weekday named in the current language. */
-function nextEventText(status: Status, locale: Locale, t: Translate): string {
+function nextEventText(status: Status, locale: Locale, t: Translate, format: TimeFormat): string {
   if (!status.nextEventAt || !status.nextEventAction) {
     return t("scheduler.nothing");
   }
@@ -76,7 +78,7 @@ function nextEventText(status: Status, locale: Locale, t: Translate): string {
   return t("scheduler.next", {
     action: status.nextEventAction === "conservation_on" ? t("action.on") : t("action.off"),
     day,
-    time: status.nextEventAt.slice(11),
+    time: formatTime(status.nextEventAt.slice(11), format),
   });
 }
 
@@ -336,7 +338,7 @@ export default function App() {
             )}
           </div>
 
-          <p className="text-sm font-medium">{nextEventText(status, draft.locale, t)}</p>
+          <p className="text-sm font-medium">{nextEventText(status, draft.locale, t, draft.timeFormat)}</p>
 
           <Toggle
             label={t("scheduler.apply")}
@@ -370,6 +372,7 @@ export default function App() {
                   <ScheduleRow
                     key={schedule.id}
                     schedule={schedule}
+                    timeFormat={draft.timeFormat}
                     onEdit={(change) => editSchedule(schedule.id, change)}
                     onToggleDay={(day) => toggleDay(schedule, day)}
                     onSetDays={(days) => editSchedule(schedule.id, { days })}
@@ -412,6 +415,20 @@ export default function App() {
               {LOCALES.map((entry) => (
                 <option key={entry.value} value={entry.value}>
                   {entry.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center">
+            <span className="mr-2">{t("settings.timeFormat")}</span>
+            <select
+              className="field"
+              value={draft.timeFormat}
+              onChange={(event) => editConfig({ timeFormat: event.target.value as TimeFormat })}
+            >
+              {TIME_FORMATS.map((value) => (
+                <option key={value} value={value}>
+                  {t(`timeFormat.${value}`)}
                 </option>
               ))}
             </select>

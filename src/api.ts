@@ -13,6 +13,9 @@ export type Day =
 
 export type Action = "conservation_on" | "conservation_off";
 
+/** How times are written in the window. Stored as "24h" or "12h". */
+export type TimeFormat = "24h" | "12h";
+
 export interface Schedule {
   id: string;
   enabled: boolean;
@@ -29,6 +32,8 @@ export interface Config {
   notifyOnChange: boolean;
   /** Language of the window, the tray and notifications. */
   locale: Locale;
+  /** How times are written in the window. */
+  timeFormat: TimeFormat;
   schedules: Schedule[];
 }
 
