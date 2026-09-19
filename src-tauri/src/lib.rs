@@ -456,27 +456,37 @@ fn notify(app: &AppHandle, action: Action) {
     }
 }
 
-/// Keeps the "start with Windows" entry in step with the setting; only touches the registry when
-/// it has actually changed.
+/// Keeps the "start with Windows" entry in step with the setting.
+///
+/// The entry is written afresh whenever the setting is on, not only when it is missing: its command
+/// carries the `--autostart` marker, an entry left by an older version has none, and the manager
+/// reports only whether the entry exists - never what it says. Rewriting is therefore the only way
+/// to repair one. Disabling still touches the registry only when there is something to remove.
 fn apply_autostart(app: &AppHandle, enabled: bool) {
     let manager = app.autolaunch();
-    match manager.is_enabled() {
-        Ok(current) if current == enabled => {}
-        Ok(_) => {
-            let result = if enabled {
-                manager.enable()
-            } else {
-                manager.disable()
-            };
-            match result {
-                Ok(()) => log::info!(
-                    "autostart: {}",
-                    if enabled { "enabled" } else { "disabled" }
-                ),
-                Err(error) => log::error!("autostart could not be changed: {error}"),
-            }
+    let current = match manager.is_enabled() {
+        Ok(current) => current,
+        Err(error) => {
+            log::error!("autostart state could not be read: {error}");
+            false
         }
-        Err(error) => log::error!("autostart state could not be read: {error}"),
+    };
+
+    if !enabled && !current {
+        return;
+    }
+
+    let result = if enabled {
+        manager.enable()
+    } else {
+        manager.disable()
+    };
+    match result {
+        Ok(()) => log::info!(
+            "autostart: {}",
+            if enabled { "enabled" } else { "disabled" }
+        ),
+        Err(error) => log::error!("autostart could not be changed: {error}"),
     }
 }
 
