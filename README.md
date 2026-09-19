@@ -1,6 +1,6 @@
 # Lenovo Conservation Scheduler
 
-<img src="assets/logo.png" width="128" alt="App icon: a half-charged battery with a clock badge on a red badge">
+<img src="assets/logo.png" width="128" alt="App icon: a half-charged battery with a clock badge, on a Lenovo-red badge">
 
 A small Windows tray utility that switches Lenovo battery **Conservation Mode** on a schedule.
 
@@ -31,7 +31,7 @@ around 75-80%, and have it switch off early enough to charge to 100% before leav
 - **Manual changes win until the next occurrence.** Flip the mode by hand from the window or the tray
   and the schedule leaves it alone until its next scheduled change.
 - **Nothing runs until you need it.** At startup only the tray icon exists. The settings window -
-  and with it the whole WebView2 process tree, roughly 340 MB - is created when you open it and
+  and with it the whole WebView2 process tree, roughly 350 MB - is created when you open it and
   destroyed when you close it, so while idle the app is one process of about 10-20 MB (2-4 MB
   private) whether or not settings have ever been opened. Closing the window does not quit: the app
   lives in the tray until you choose Exit.
@@ -56,7 +56,7 @@ these are the numbers Task Manager shows for it.
 
 | State | Processes | Working set | Private memory | CPU used while idle |
 | --- | --- | --- | --- | --- |
-| Running, settings never opened | 1 | ~16 MB | ~4 MB | 0.000 s over 62 s |
+| Running, settings never opened | 1 | ~15 MB | ~3 MB | 0.000 s over 62 s |
 | Settings window open | 7 | ~350 MB | ~180 MB | the browser's, while you look at it |
 | After closing the window | 1 | ~23 MB | ~5 MB | 0.000 s |
 
@@ -70,8 +70,10 @@ these are the numbers Task Manager shows for it.
   created on demand and destroyed on close. Close it and all six browser processes go away, leaving
   the one process at about 5 MB.
 - **Disk and network.** While idle the app owns no sockets (measured: 0) and writes nothing. The
-  only writes in normal use are the log line for a scheduled change and the config file when you
-  edit a setting.
+  writes in normal use are the log line for a scheduled change, the config file when you edit a
+  setting, and - once per start - the two registry values that name the app to Windows for its
+  notifications, plus the icon file those values point at (written only when it is missing or from
+  an older build).
 - **One copy.** Launching it again does not add a second icon or a second scheduler: the running
   instance shows its window and the new process exits.
 
@@ -118,7 +120,9 @@ Configuration is one JSON file at
 
 `time` is 24-hour local `HH:MM`, `action` is `conservation_on` or `conservation_off`, and a schedule
 with an empty `days` list never fires. A file that cannot be parsed is kept as `config.corrupt` and
-defaults are used, so nothing is lost silently; missing or unknown fields fall back to defaults.
+defaults are used, so nothing is lost silently; missing or unknown fields fall back to defaults -
+`scheduleEnabled`, `startWithWindows` and `notifyOnChange` are `true`, `locale` and `timeFormat`
+follow Windows.
 
 `locale` picks the language of the window, the tray menu and the notifications: `en-US` or `id`.
 A fresh install uses whatever Windows is set to, and the value is read leniently - `en`, `en-GB`,
@@ -146,9 +150,10 @@ The `id` pair is a worked example of all three steps.
 
 ## Logs
 
-The app logs what it does and why, one line per event: the config it loaded, the moment it armed,
-each wake-up ("scheduled moment reached" / "resumed from sleep" / "schedules changed"), every mode
-it changed, and any failure. Nothing is logged while it waits.
+The app logs what it does and why, one line per event: the config it loaded, the notification
+identity it registered, the moment it armed, each wake-up ("scheduled moment reached" / "resumed from
+sleep" / "schedules changed"), every mode it changed, and any failure. Nothing is logged while it
+waits.
 
 In a development build that goes to the console; in a release build a windowed process has no
 console, so it is also written to:
@@ -211,11 +216,12 @@ With `npm run tauri dev` the dev URL is the *correct* target, because Vite is ru
 | `src-tauri/src/lenovo.rs` | the only module with Lenovo FFI (`PowerBattery.dll`) |
 | `src-tauri/src/power.rs` | battery percentage, AC state, charging flag |
 | `src-tauri/src/i18n.rs` | the strings Rust needs itself: tray menu, notifications, errors |
-| `src-tauri/src/lib.rs` | state, tray menu, commands, scheduler thread |
-| `src/App.tsx` | settings window: state, save/add/delete, the three sections |
-| `src/components/*.tsx` | `Fact`, `Toggle`, `Banner`, `DayPicker`, `ScheduleRow` |
+| `src-tauri/src/identity.rs` | registers the app's notification identity and its icon file |
+| `src-tauri/src/lib.rs` | state, tray menu, commands, scheduler thread, toasts |
+| `src/App.tsx` | settings window: state, auto-save, add/delete, the three sections |
+| `src/components/*.tsx` | `Fact`, `Toggle`, `TimeField`, `Banner`, `DayPicker`, `ScheduleRow` |
 | `src/api.ts` | typed wrappers for the three commands and the state event |
-| `src/i18n/*.ts(x)` | the window's dictionaries, `t()`, and the locale provider |
+| `src/i18n/*.ts(x)` | the window's dictionaries, `t()`, the locale provider and `time.ts` |
 | `src/index.css` | Tailwind entry: base styles plus the shared `@layer components` recipes |
 
 ## Contributing
@@ -233,7 +239,8 @@ already cost time - read it first if you are pointing a coding agent at this rep
 Report vulnerabilities privately, either through GitHub's
 [private vulnerability reporting](https://github.com/fajarwz/lenovo-conservation-scheduler/security/advisories/new)
 or by email to `hi@fajarwz.com`. [SECURITY.md](SECURITY.md) lists what is in scope - and what the app
-touches, so you can judge a report yourself: no network, no admin rights, two files, one registry key.
+touches, so you can judge a report yourself: no network, no admin rights, three local files, and two
+registry keys under `HKCU`.
 
 ## License
 

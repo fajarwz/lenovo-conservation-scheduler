@@ -19,17 +19,22 @@ Useful context for judging a report:
   scheduled task.
 - **No network access at all** - no telemetry, no update check, no accounts. The only outside
   contact is reading a local DLL.
-- Writes exactly two files: the config at
-  `%APPDATA%\com.fajarwz.lenovo-conservation-scheduler\config.json` and a log at
-  `%LOCALAPPDATA%\com.fajarwz.lenovo-conservation-scheduler\logs\`.
-- Touches one registry key, `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, and only for the
-  "Start with Windows" setting.
+- Writes three files: the config at
+  `%APPDATA%\com.fajarwz.lenovo-conservation-scheduler\config.json`, a log under
+  `%LOCALAPPDATA%\com.fajarwz.lenovo-conservation-scheduler\logs\`, and that directory's `icon.png` -
+  the app's own icon, written when it is missing so Windows has an image to show beside the app's
+  notifications.
+- Touches two registry keys, both under `HKCU` and both as a normal user:
+  `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, and only for the "Start with Windows"
+  setting; and `HKCU\Software\Classes\AppUserModelId\com.fajarwz.lenovo-conservation-scheduler`, which
+  is the name and icon Windows shows beside the app's notifications.
 - Loads `PowerBattery.dll` **in place** from the machine's own Lenovo Vantage installation
   (`C:\ProgramData\Lenovo\Vantage\Addins\IdeaNotebookAddin\<version>\`). Nothing from Lenovo is
   bundled, copied or redistributed. The app does not verify that DLL's authenticity, so a tampered
   Vantage installation is outside the threat model.
-- `unsafe` Rust exists in two modules only: `src-tauri/src/lenovo.rs` (that DLL) and
-  `src-tauri/src/timer.rs` (kernel32 timers and power notifications).
+- `unsafe` Rust is confined to the modules that call Windows: `src-tauri/src/lenovo.rs` (that DLL),
+  `src-tauri/src/timer.rs` (kernel32 timers and power notifications), `src-tauri/src/power.rs`
+  (`GetSystemPowerStatus`) and `src-tauri/src/i18n.rs` (the user's UI language and time format).
 
 ## In scope
 
