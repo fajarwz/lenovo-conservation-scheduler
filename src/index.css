@@ -8,6 +8,13 @@
     height: 100%;
   }
 
+  /* Follow the Windows theme, and tell the browser to draw *native* controls in that theme too.
+     Without this the time picker's clock icon, the select arrows, the checkboxes and the scrollbars
+     stay light-styled and render black on the dark card. */
+  html {
+    color-scheme: light dark;
+  }
+
   body {
     @apply bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-100;
     font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
@@ -32,7 +39,7 @@
   }
 
   .btn {
-    @apply rounded-md border border-neutral-300 px-3 py-1 text-sm hover:border-sky-600 disabled:cursor-default disabled:opacity-50 disabled:hover:border-neutral-300 dark:border-neutral-600 dark:hover:border-sky-400;
+    @apply rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1 text-sm text-neutral-800 hover:border-sky-600 disabled:cursor-default disabled:opacity-50 disabled:hover:border-neutral-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-100 dark:hover:border-sky-400;
   }
 
   .btn-primary {
@@ -80,7 +87,7 @@
   }
 
   .field {
-    @apply rounded-md border border-neutral-300 bg-white px-1.5 py-0.5 dark:border-neutral-600 dark:bg-neutral-800;
+    @apply rounded-md border border-neutral-300 bg-white px-1.5 py-0.5 text-neutral-900 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100;
   }
 
   .cell {
@@ -92,7 +99,7 @@
   }
 
   .day-btn {
-    @apply rounded-md border px-1.5 py-0.5 text-xs;
+    @apply rounded-md border border-neutral-300 px-1.5 py-0.5 text-xs text-neutral-700 dark:border-neutral-600 dark:text-neutral-200;
   }
 
   .day-btn-on {
