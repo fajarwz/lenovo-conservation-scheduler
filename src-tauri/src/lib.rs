@@ -572,9 +572,19 @@ fn reconcile(app: &AppHandle) {
         return;
     }
 
-    // No Lenovo control: nothing to apply and nothing to retry.
-    let Ok(current) = lenovo::get_mode() else {
-        return;
+    // No Lenovo control: nothing to apply and nothing to retry. Said out loud, once per wake rather
+    // than silently, because this is the case a user is most likely to hit on a machine without
+    // Vantage - and "the schedule did not fire" is exactly what they will come to the log to find.
+    let current = match lenovo::get_mode() {
+        Ok(current) => current,
+        Err(error) => {
+            log::error!(
+                "scheduler: could not apply {} (due {occurrence_at}): {}",
+                action.label(),
+                error.detail()
+            );
+            return;
+        }
     };
     if !scheduler::requires_change(Some(action), current) {
         return;

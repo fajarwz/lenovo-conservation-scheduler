@@ -129,3 +129,21 @@ cd .. && touch src-tauri/src/lib.rs src-tauri/src/main.rs && npm run tauri build
 
 There is **no visual test**: nothing here can tell you whether the window *looks* right. Say what was
 built and verified, and leave the appearance to the user rather than claiming it renders correctly.
+
+## Releasing
+
+The README's download links go through
+`https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/<name>`, which
+resolves to that filename on the newest release. The bundler bakes the version into its artifact names
+(`Lenovo Conservation Scheduler_1.0.0_x64-setup.exe`), so those names would 404 the moment a new
+version ships. Every release therefore also carries stable-named copies of the same bytes:
+
+| Stable name | Copy of |
+| --- | --- |
+| `Lenovo-Conservation-Scheduler-setup.exe` | the NSIS installer in `bundle/nsis/` |
+| `Lenovo-Conservation-Scheduler-portable.exe` | `target/release/lenovo-conservation-scheduler.exe` |
+
+Upload them with the release (`gh release upload <tag> <file> <file> --clobber`) and put their SHA-256
+in the notes beside the versioned ones. Skip this and the README's download links quietly point at the
+previous version, or at nothing. Use hyphens, not spaces: `gh` rewrites spaces in asset filenames to
+dots, which breaks any link that names them.

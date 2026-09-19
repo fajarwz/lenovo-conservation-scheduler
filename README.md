@@ -4,6 +4,15 @@
 
 A small Windows tray utility that switches Lenovo battery **Conservation Mode** on a schedule.
 
+[![Latest release](https://img.shields.io/github/v/release/fajarwz/lenovo-conservation-scheduler?label=release&sort=semver)](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/fajarwz/lenovo-conservation-scheduler/total?label=downloads)](https://github.com/fajarwz/lenovo-conservation-scheduler/releases)
+[![License](https://img.shields.io/github/license/fajarwz/lenovo-conservation-scheduler)](LICENSE)
+
+**Download the latest version: [installer](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-setup.exe) (1.5 MB) or [portable exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-portable.exe) (4.6 MB)**
+
+Both links always serve the newest release, whatever version that is. Windows 10/11 on a Lenovo
+laptop, no administrator rights.
+
 <img src="assets/screenshots/window.png" width="760" alt="The settings window: charge at 80% and charging paused, the Conservation Mode switch, and two weekday schedules (05:00 off, 09:00 on)">
 
 The case it exists for: keep Conservation Mode on while the laptop is at home so the battery sits
@@ -94,10 +103,14 @@ $after = (Get-Process lenovo-conservation-scheduler).CPU
 
 ## Install
 
-Grab the latest installer from [Releases](../../releases/latest) and run it: it installs per user and
-needs no administrator rights. The standalone executable on the same page needs nothing beside it and
-keeps everything in your own profile - but do not move it after the first run, because the "start with
-Windows" entry records the path it was launched from.
+| Download | Size | What it is |
+| --- | --- | --- |
+| [Installer](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-setup.exe) | 1.5 MB | Installs per user, needs no administrator rights, and adds the "start with Windows" option. |
+| [Portable exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-portable.exe) | 4.6 MB | Nothing to install and nothing beside it, everything stays in your own profile - but do not move it after the first run, because the "start with Windows" entry records the path it was launched from. |
+
+Both links go through `/releases/latest/download/`, so they always serve the newest release without this
+file needing an edit. The [releases page](../../releases/latest) also carries the MSI and the
+version-named copies of the same builds.
 
 Releases are **unsigned**, so Windows warns on the first run: SmartScreen's "Windows protected your
 PC" dialog for any file that was downloaded. Nothing inside the app can avoid that - Windows trusts
@@ -106,7 +119,7 @@ software by signature and reputation, and this project has neither yet. Two ways
 - Click **More info** -> **Run anyway** each time you download a new copy, or
 - clear the file's mark-of-the-web first, which is Windows' own way of recording that you trust it:
   right-click the file -> **Properties** -> tick **Unblock** -> **OK**, or in PowerShell
-  `Unblock-File .\lenovo-conservation-scheduler-1.0.0-portable.exe`.
+  `Unblock-File .\Lenovo-Conservation-Scheduler-setup.exe`.
 
 The release notes list a SHA-256 for each download, so you can check the file you have is the one that
 was built.
