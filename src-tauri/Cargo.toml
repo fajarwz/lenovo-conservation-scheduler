@@ -1,6 +1,6 @@
 [package]
 name = "lenovo-conservation-scheduler"
-version = "0.1.0"
+version = "1.0.0"
 description = "Windows tray app that switches Lenovo Conservation Mode on a schedule"
 authors = ["Fajar Windhu Zulfikar"]
 license = "MIT"
