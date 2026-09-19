@@ -1,0 +1,159 @@
+# Lenovo Conservation Scheduler
+
+A small Windows tray utility that switches Lenovo battery **Conservation Mode** on a schedule.
+
+The case it exists for: keep Conservation Mode on while the laptop is at home so the battery sits
+around 75-80%, and have it switch off early enough to charge to 100% before leaving.
+
+```
+05:00  ->  Conservation Mode OFF   (Monday to Friday)
+09:00  ->  Conservation Mode ON    (Monday to Friday)
+```
+
+> Not affiliated with, endorsed by, or sponsored by Lenovo. The name refers to the feature the app
+> automates: it drives Lenovo's own software in place and bundles nothing from Lenovo.
+
+## How it works
+
+- **Lenovo control** uses Lenovo Vantage's own native `PowerBattery.dll`, loaded in place from
+  `C:\ProgramData\Lenovo\Vantage\Addins\IdeaNotebookAddin\<version>\PowerBattery.dll`. Nothing from
+  Vantage is bundled, copied or redistributed. If the DLL is missing - Vantage not installed, or a
+  model without conservation-mode support - the app says so and keeps running with manual switching
+  disabled instead of failing.
+- **No polling.** A single background thread blocks on a waitable timer armed for the next
+  occurrence, plus Windows events for "settings edited" and "resumed from sleep". While idle the
+  process has one sleeping thread: no ticks, no intervals, no CPU.
+- **Reconciliation.** Whenever it wakes - at startup, after a resume, after an edit - it asks "what
+  does the schedule expect right now?" and writes only if the current mode differs. That single rule
+  is what makes a laptop that slept through 05:00 correct itself on waking at 07:30.
+- **Manual changes win until the next occurrence.** Flip the mode by hand from the window or the tray
+  and the schedule leaves it alone until its next scheduled change.
+- **Nothing runs until you need it.** At startup only the tray icon exists. The settings window -
+  and with it the whole WebView2 process tree, roughly 340 MB - is created when you open it and
+  destroyed when you close it, so while idle the app is one process of about 10-20 MB (2-4 MB
+  private) whether or not settings have ever been opened. Closing the window does not quit: the app
+  lives in the tray until you choose Exit.
+
+## Requirements
+
+- Windows 10/11 on a Lenovo laptop that supports Conservation Mode.
+- Lenovo Vantage installed (the app reads `PowerBattery.dll` from it) and the
+  `Lenovo Notebook ITS Service` running.
+- No administrator rights: it runs as a normal user process.
+- No network access, no telemetry, no database, no backend, no account.
+
+## Settings
+
+Configuration is one JSON file at
+`%APPDATA%\com.fajarwz.lenovo-conservation-scheduler\config.json`, which can be edited by hand:
+
+```json
+{
+  "scheduleEnabled": true,
+  "startWithWindows": false,
+  "notifyOnChange": true,
+  "locale": "en-US",
+  "schedules": [
+    {
+      "id": "weekday-morning",
+      "enabled": true,
+      "time": "05:00",
+      "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+      "action": "conservation_off"
+    }
+  ]
+}
+```
+
+`time` is 24-hour local `HH:MM`, `action` is `conservation_on` or `conservation_off`, and a schedule
+with an empty `days` list never fires. A file that cannot be parsed is kept as `config.corrupt` and
+defaults are used, so nothing is lost silently; missing or unknown fields fall back to defaults.
+
+`locale` picks the language of the window, the tray menu and the notifications: `en-US` or `id`.
+A fresh install uses whatever Windows is set to, and the value is read leniently - `en`, `en-GB`,
+`id-ID` all work, and anything unrecognised falls back to the OS language rather than failing the
+file.
+
+## Adding a language
+
+1. `src-tauri/src/i18n.rs`: add the code to `Lang`, its `parse` arm, its `detect` arm if the OS can
+   report it, and a `Strings` table (the compiler refuses a table with a missing field).
+2. `src/i18n/<code>.ts`: copy `en-US.ts`, translate the values, and type it as `typeof enUS` so a
+   missing or misspelled key fails the build.
+3. `src/i18n/index.tsx`: add the code to `Locale`, `LOCALES` and `DICTIONARIES`.
+
+The `id` pair is a worked example of all three steps.
+
+## Logs
+
+The app logs what it does and why, one line per event: the config it loaded, the moment it armed,
+each wake-up ("scheduled moment reached" / "resumed from sleep" / "schedules changed"), every mode
+it changed, and any failure. Nothing is logged while it waits.
+
+In a development build that goes to the console; in a release build a windowed process has no
+console, so it is also written to:
+
+```
+%LOCALAPPDATA%\com.fajarwz.lenovo-conservation-scheduler\logs\lenovo-conservation-scheduler.log
+```
+
+If a switch did not happen, that file says why.
+
+## Development
+
+```bash
+npm install
+npm run tauri dev      # run the app
+npm run tauri build    # executable + installers
+```
+
+Tests, from `src-tauri`:
+
+```bash
+cargo test -- --test-threads=1
+```
+
+`--test-threads=1` matters: one test toggles the real charging mode on the laptop and restores it.
+Other tests cover the scheduler logic (next event, weekday filtering, midnight crossing, duplicates,
+disabled entries, startup and wake reconciliation) and the JSON persistence round trip.
+
+Always build the executable through the Tauri CLI:
+
+```bash
+npm run tauri build -- --no-bundle   # executable only; drop the flag to also make installers
+```
+
+Two traps, and both of them look like the app is broken rather than the build:
+
+- **Never use a bare `cargo build --release`.** Without the `custom-protocol` feature the `tauri`
+  crate compiles as *dev* (`tauri/build.rs`: `let dev = !custom_protocol`), so the window loads
+  `devUrl` (`http://localhost:1420`) instead of the embedded frontend - and with no Vite server
+  running you get Chromium's "can't reach this page". The CLI enables that feature; cargo on its
+  own does not. Diagnose by listening on port 1420 while the app starts: a production build makes
+  zero connections to it. The production binary is also noticeably larger, because it now carries
+  the compressed frontend.
+- **A rebuilt `dist/` does not relink the binary** (cargo does not treat it as a change), so a
+  frontend-only edit needs the crate touched before the build:
+
+```bash
+npm run build && touch src-tauri/src/lib.rs src-tauri/src/main.rs && npm run tauri build -- --no-bundle
+```
+
+With `npm run tauri dev` the dev URL is the *correct* target, because Vite is running.
+
+## Layout
+
+| Path | Purpose |
+| --- | --- |
+| `src-tauri/src/config.rs` | schedules and options, JSON persistence, validation |
+| `src-tauri/src/scheduler.rs` | pure decisions: what is expected now, when the next event is |
+| `src-tauri/src/timer.rs` | waitable timer, settings event, resume notification |
+| `src-tauri/src/lenovo.rs` | the only module with Lenovo FFI (`PowerBattery.dll`) |
+| `src-tauri/src/power.rs` | battery percentage, AC state, charging flag |
+| `src-tauri/src/i18n.rs` | the strings Rust needs itself: tray menu, notifications, errors |
+| `src-tauri/src/lib.rs` | state, tray menu, commands, scheduler thread |
+| `src/App.tsx` | settings window: state, save/add/delete, the three sections |
+| `src/components/*.tsx` | `Fact`, `Toggle`, `Banner`, `DayPicker`, `ScheduleRow` |
+| `src/api.ts` | typed wrappers for the three commands and the state event |
+| `src/i18n/*.ts(x)` | the window's dictionaries, `t()`, and the locale provider |
+| `src/index.css` | Tailwind entry: base styles plus the shared `@layer components` recipes |
