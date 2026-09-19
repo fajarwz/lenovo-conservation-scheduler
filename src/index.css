@@ -60,15 +60,15 @@
   }
 
   /* Every boolean in the UI: a styled checkbox, so keyboard and screen-reader behaviour comes for
-     free: focus is real, space toggles it, and the knob is drawn with ::after. Used by the
-     conservation switch, the labelled settings switches and a schedule row's On column. */
+     free: focus is real, space toggles it, and the knob is drawn with ::after. Sized to sit beside
+     14px text without crowding it: 30x16 with a 12px knob travelling 14px. */
   .switch {
-    @apply relative h-[18px] w-[34px] cursor-pointer appearance-none rounded-full border border-neutral-300 bg-neutral-200 align-middle transition-colors dark:border-neutral-600 dark:bg-neutral-600;
+    @apply relative h-4 w-[30px] cursor-pointer appearance-none rounded-full border border-neutral-300 bg-neutral-200 align-middle transition-colors dark:border-neutral-600 dark:bg-neutral-600;
   }
 
   .switch::after {
     content: "";
-    @apply absolute top-px left-px h-[14px] w-[14px] rounded-full bg-white transition-transform dark:bg-neutral-200;
+    @apply absolute top-px left-px h-3 w-3 rounded-full bg-white transition-transform dark:bg-neutral-200;
   }
 
   .switch:checked {
@@ -76,7 +76,7 @@
   }
 
   .switch:checked::after {
-    @apply translate-x-4;
+    @apply translate-x-3.5;
   }
 
   .switch:disabled {

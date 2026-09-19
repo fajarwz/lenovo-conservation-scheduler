@@ -61,7 +61,7 @@ no admin rights, no service.
 | `src-tauri/src/i18n.rs` | the strings Rust needs itself: tray menu, notifications, errors |
 | `src-tauri/src/lib.rs` | state, commands, tray menu, the single scheduler thread |
 | `src/App.tsx` | the window: state, auto-save, the three cards |
-| `src/components/*` | `Fact`, `Toggle`, `ConservationSwitch`, `Banner`, `DayPicker`, `ScheduleRow` |
+| `src/components/*` | `Fact`, `Toggle`, `Banner`, `DayPicker`, `ScheduleRow` |
 | `src/api.ts` | typed wrappers for the three commands and the state event |
 | `src/i18n/*` | the window's dictionaries, `t()` and the locale provider |
 

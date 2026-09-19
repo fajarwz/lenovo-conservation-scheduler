@@ -1,6 +1,7 @@
 import type { Action, Day, Schedule } from "../api";
 import { useTranslation } from "../i18n";
 import { DayPicker } from "./DayPicker";
+import { Toggle } from "./Toggle";
 
 /** One editable schedule line. */
 export function ScheduleRow({
@@ -20,14 +21,11 @@ export function ScheduleRow({
   return (
     <tr className={schedule.enabled ? undefined : "opacity-50"}>
       <td className="cell">
-        <input
-          type="checkbox"
-          role="switch"
-          className="switch"
+        <Toggle
           checked={schedule.enabled}
-          aria-label={t("scheduler.on")}
+          ariaLabel={t("scheduler.on")}
           title={schedule.enabled ? t("common.on") : t("common.off")}
-          onChange={(event) => onEdit({ enabled: event.target.checked })}
+          onChange={(enabled) => onEdit({ enabled })}
         />
       </td>
       <td className="cell">

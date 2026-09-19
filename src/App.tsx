@@ -13,7 +13,6 @@ import {
   setConservation,
 } from "./api";
 import { Banner } from "./components/Banner";
-import { ConservationSwitch } from "./components/ConservationSwitch";
 import { Fact } from "./components/Fact";
 import { ScheduleRow } from "./components/ScheduleRow";
 import { Toggle } from "./components/Toggle";
@@ -306,8 +305,10 @@ export default function App() {
               label={t("battery.conservation")}
               value={
                 status.conservationAvailable && status.conservationOn !== null ? (
-                  <ConservationSwitch
-                    on={status.conservationOn}
+                  <Toggle
+                    checked={status.conservationOn}
+                    ariaLabel={t("battery.conservation")}
+                    title={status.conservationOn ? t("common.on") : t("common.off")}
                     onChange={(on) => run(() => setConservation(on))}
                   />
                 ) : (
