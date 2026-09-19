@@ -1,5 +1,7 @@
 # Lenovo Conservation Scheduler
 
+<img src="assets/logo.png" width="128" alt="App icon: a half-charged battery with a clock badge on a red badge">
+
 A small Windows tray utility that switches Lenovo battery **Conservation Mode** on a schedule.
 
 The case it exists for: keep Conservation Mode on while the laptop is at home so the battery sits

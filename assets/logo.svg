@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!--
+    Lenovo Conservation Scheduler.
+
+    Lenovo's primary red (#E1251B, from Lenovo's own brand site) so the icon reads as "for a Lenovo
+    laptop" at a glance, with white artwork because a mid-tone badge is what stays legible on both a
+    light and a dark Windows taskbar.
+
+    What it shows: a battery that is deliberately not full - that is what conservation mode does -
+    with a clock badge for the schedule. No Lenovo wordmark or logo shape is used, and the project is
+    not affiliated with Lenovo; see the README.
+
+    Regenerate the platform icons with: npm run tauri icon assets/logo.svg
+  -->
+  <rect x="40" y="40" width="944" height="944" rx="204" fill="#E1251B"/>
+
+  <!-- battery body -->
+  <rect x="188" y="364" width="560" height="292" rx="76" fill="none" stroke="#ffffff" stroke-width="52"/>
+  <!-- terminal -->
+  <rect x="752" y="450" width="70" height="120" rx="28" fill="#ffffff"/>
+  <!-- held at roughly half: conservation mode never fills to the top -->
+  <rect x="244" y="420" width="272" height="180" rx="44" fill="#ffffff" fill-opacity="0.55"/>
+
+  <!-- clock badge -->
+  <circle cx="786" cy="786" r="170" fill="#ffffff"/>
+  <path d="M786 680 L786 786 L866 830" fill="none" stroke="#E1251B" stroke-width="38"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="786" cy="786" r="24" fill="#E1251B"/>
+</svg>
