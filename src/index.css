@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+/* Tailwind's dark: variant follows the OS by default, which is what a Windows utility should do. */
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-neutral-100 text-neutral-900 dark:bg-neutral-900 dark:text-neutral-100;
+    font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+}
+
+/* Recipes shared by more than one component, kept in Tailwind's own system. Anything used once
+   stays inline in the component as a plain utility. */
+@layer components {
+  .card {
+    @apply flex flex-col gap-2.5 rounded-lg border border-neutral-200 bg-white p-3.5 dark:border-neutral-700 dark:bg-neutral-800;
+  }
+
+  .section-title {
+    @apply text-xs font-semibold tracking-wide text-neutral-500 uppercase dark:text-neutral-400;
+  }
+
+  .muted {
+    @apply text-neutral-500 dark:text-neutral-400;
+  }
+
+  .btn {
+    @apply rounded-md border border-neutral-300 px-3 py-1 text-sm hover:border-sky-600 disabled:cursor-default disabled:opacity-50 disabled:hover:border-neutral-300 dark:border-neutral-600 dark:hover:border-sky-400;
+  }
+
+  .btn-primary {
+    @apply border-sky-600 font-semibold text-sky-700 dark:border-sky-500 dark:text-sky-400;
+  }
+
+  /* Conservation Mode switch. A styled checkbox, so keyboard and screen-reader behaviour comes for
+     free: focus is real, space toggles it, and the knob is drawn with ::after. */
+  .switch {
+    @apply relative h-[18px] w-[34px] cursor-pointer appearance-none rounded-full border border-neutral-300 bg-neutral-200 align-middle transition-colors dark:border-neutral-600 dark:bg-neutral-600;
+  }
+
+  .switch::after {
+    content: "";
+    @apply absolute top-px left-px h-[14px] w-[14px] rounded-full bg-white transition-transform dark:bg-neutral-200;
+  }
+
+  .switch:checked {
+    @apply border-sky-600 bg-sky-600 dark:border-sky-500 dark:bg-sky-500;
+  }
+
+  .switch:checked::after {
+    @apply translate-x-4;
+  }
+
+  .switch:disabled {
+    @apply cursor-default opacity-50;
+  }
+
+  .switch:focus-visible {
+    @apply outline-2 outline-offset-2 outline-sky-600;
+  }
+
+  .field {
+    @apply rounded-md border border-neutral-300 bg-white px-1.5 py-0.5 dark:border-neutral-600 dark:bg-neutral-800;
+  }
+
+  .cell {
+    @apply border-t border-neutral-200 py-1 pr-1.5 align-middle dark:border-neutral-700;
+  }
+
+  .head-cell {
+    @apply border-b border-neutral-200 pb-1 text-left text-xs font-semibold text-neutral-500 dark:border-neutral-700 dark:text-neutral-400;
+  }
+
+  .day-btn {
+    @apply rounded-md border px-1.5 py-0.5 text-xs;
+  }
+
+  .day-btn-on {
+    @apply border-sky-600 font-semibold text-sky-700 dark:border-sky-500 dark:text-sky-400;
+  }
+}
