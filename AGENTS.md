@@ -41,6 +41,13 @@ no admin rights, no service.
    That is why the suite runs with `--test-threads=1`; do not parallelize it.
 5. **A failed frontend build leaves the previous `dist/` in place** and the production build embeds
    it happily. `tsc` stops before Vite runs, and piping through `tail` hides the exit status.
+6. **Replacing the app icon does not re-embed the Windows icon resource.** The exe icon is written by
+   the *build script*, so touching `lib.rs`/`main.rs` rebuilds the crate but reuses the cached
+   resource: the exe keeps the old icon while the window and tray already show the new one. Regenerate
+   the icons with `npm run tauri icon assets/logo.svg` (the source of truth is that SVG), then
+   `touch src-tauri/build.rs` before the production build. To verify, extract the icon from a **copy**
+   of the exe at a fresh path - the shell icon cache otherwise returns the previous build's icon - or
+   check that the frames of `src-tauri/icons/icon.ico` appear in the binary.
 
 ## Architecture
 
