@@ -22,6 +22,7 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-notification = "2"
 tauri-plugin-autostart = "2"
+tauri-plugin-single-instance = "2"
 tauri-plugin-log = "2"
 log = "0.4"
 serde = { version = "1", features = ["derive"] }

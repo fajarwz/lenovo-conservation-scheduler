@@ -51,6 +51,14 @@ export const enUS = {
   "settings.notify": "Show a notification when the mode changes",
   "settings.language": "Language",
 
+  "day.long.monday": "Monday",
+  "day.long.tuesday": "Tuesday",
+  "day.long.wednesday": "Wednesday",
+  "day.long.thursday": "Thursday",
+  "day.long.friday": "Friday",
+  "day.long.saturday": "Saturday",
+  "day.long.sunday": "Sunday",
+
   "day.monday": "Mo",
   "day.tuesday": "Tu",
   "day.wednesday": "We",

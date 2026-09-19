@@ -20,6 +20,10 @@ export function DayPicker({
           type="button"
           className={schedule.days.includes(day) ? "day-btn day-btn-on" : "day-btn"}
           aria-pressed={schedule.days.includes(day)}
+          // Two letters save the row a lot of width, so the full name is a hover away - and it is
+          // what a screen reader announces, which "Sn" alone would not be.
+          aria-label={t(`day.long.${day}`)}
+          title={t(`day.long.${day}`)}
           onClick={() => onToggle(day)}
         >
           {t(`day.${day}`)}

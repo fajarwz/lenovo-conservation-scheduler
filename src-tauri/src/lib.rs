@@ -608,14 +608,50 @@ fn log_plugin() -> tauri::plugin::TauriPlugin<Wry> {
         .build()
 }
 
+/// The argument the autostart entry passes, so a login start can be told from a double-click.
+const AUTOSTART_FLAG: &str = "--autostart";
+
+/// True when Windows started us from the login entry rather than the user opening the executable.
+fn started_by_autostart() -> bool {
+    std::env::args().any(|argument| argument == AUTOSTART_FLAG)
+}
+
+/// Says the app is running without a window. Deliberately not the mode-change notification, so it
+/// does not consult `notify_on_change`: someone who double-clicked the executable gets an answer
+/// either way.
+fn notify_background(app: &AppHandle) {
+    let state = app.state::<AppState>();
+    let lang = lock(&state.inner).config.locale;
+    let body = lang.strings().notification_background;
+    log::info!("told the user it is running in the tray: {body}");
+
+    if let Err(error) = app
+        .notification()
+        .builder()
+        .title(APP_NAME)
+        .body(body)
+        .show()
+    {
+        log::error!("notification failed: {error}");
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app = tauri::Builder::default()
+        // Registered first, which it has to be: it claims the instance before anything else starts,
+        // so a second launch hands over and exits instead of adding a tray icon.
+        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+            log::info!("another launch: showing the settings window");
+            open_settings(app);
+        }))
         .plugin(tauri_plugin_notification::init())
         .plugin(log_plugin())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
-            None,
+            // The marker tells a login start apart from a double-click, so only the latter gets the
+            // "running in the background" notification.
+            Some(vec![AUTOSTART_FLAG]),
         ))
         .setup(|app| {
             let config_path = app.path().app_config_dir()?.join("config.json");
@@ -675,6 +711,11 @@ pub fn run() {
             // First run: no config yet, so open the settings window rather than starting invisibly.
             if first_run {
                 open_settings(&handle);
+            } else if !started_by_autostart() {
+                // Launched by hand with settings already saved: the app goes straight to the tray, so
+                // say so, or the double-click looks like it did nothing. Windows starting it at login
+                // stays quiet on purpose.
+                notify_background(&handle);
             }
 
             let state = app.state::<AppState>();

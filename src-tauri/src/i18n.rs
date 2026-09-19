@@ -108,6 +108,9 @@ pub struct Strings {
     // Notifications.
     pub notification_on: &'static str,
     pub notification_off: &'static str,
+    /// Shown when a manual launch lands in the tray with no window: the double-click must not look
+    /// like it did nothing.
+    pub notification_background: &'static str,
 
     // Lenovo failures (shown in the window and on the tray's status line).
     pub lenovo_missing: &'static str,
@@ -143,6 +146,7 @@ static EN_US: Strings = Strings {
 
     notification_on: "Conservation Mode enabled",
     notification_off: "Conservation Mode disabled",
+    notification_background: "Running in the background. Open it any time from the tray icon.",
 
     lenovo_missing: "Lenovo battery control is unavailable on this device.",
     lenovo_load_failed: "Could not load Lenovo battery control.",
@@ -178,6 +182,7 @@ static ID: Strings = Strings {
 
     notification_on: "Mode Konservasi diaktifkan",
     notification_off: "Mode Konservasi dinonaktifkan",
+    notification_background: "Berjalan di latar belakang. Buka kapan saja dari ikon tray.",
 
     lenovo_missing: "Kontrol baterai Lenovo tidak tersedia di perangkat ini.",
     lenovo_load_failed: "Gagal memuat kontrol baterai Lenovo.",
@@ -232,6 +237,7 @@ mod tests {
         let id = Lang::Id.strings();
         assert_ne!(en.tray_open_settings, id.tray_open_settings);
         assert_ne!(en.notification_on, id.notification_on);
+        assert_ne!(en.notification_background, id.notification_background);
         assert_ne!(en.lenovo_not_applied, id.lenovo_not_applied);
         assert_ne!(en.config_needs_a_day, id.config_needs_a_day);
     }

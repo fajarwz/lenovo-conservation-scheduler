@@ -35,6 +35,12 @@ around 75-80%, and have it switch off early enough to charge to 100% before leav
   destroyed when you close it, so while idle the app is one process of about 10-20 MB (2-4 MB
   private) whether or not settings have ever been opened. Closing the window does not quit: the app
   lives in the tray until you choose Exit.
+- **One copy at a time.** Launching the executable again does not start a second copy: the instance
+  already running shows its window and the new process exits. Two copies would mean two tray icons
+  and two schedulers racing over the same setting.
+- **It tells you when it is invisible.** With settings already saved, launching it goes straight to
+  the tray, so it sends a notification saying it is running in the background. A start from the
+  Windows login entry stays quiet on purpose.
 
 ## Requirements
 
