@@ -86,6 +86,15 @@ $after = (Get-Process lenovo-conservation-scheduler).CPU
 "CPU used in 60 s: {0:N3} s" -f ($after - $before)
 ```
 
+## Install
+
+Grab the latest installer from [Releases](../../releases/latest) and run it: it installs per user and
+needs no administrator rights. The standalone executable on the same page needs nothing beside it and
+keeps everything in your own profile.
+
+Releases are **unsigned**, so Windows SmartScreen warns on the first run ("More info" -> "Run
+anyway"). To build it yourself instead, see [Development](#development).
+
 ## Requirements
 
 - Windows 10/11 on a Lenovo laptop that supports Conservation Mode.
