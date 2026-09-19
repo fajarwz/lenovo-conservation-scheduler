@@ -4,6 +4,8 @@
 
 A small Windows tray utility that switches Lenovo battery **Conservation Mode** on a schedule.
 
+<img src="assets/screenshots/window.png" width="760" alt="The settings window: charge at 80% and charging paused, the Conservation Mode switch, and two weekday schedules (05:00 off, 09:00 on)">
+
 The case it exists for: keep Conservation Mode on while the laptop is at home so the battery sits
 around 75-80%, and have it switch off early enough to charge to 100% before leaving.
 
