@@ -158,6 +158,20 @@ With `npm run tauri dev` the dev URL is the *correct* target, because Vite is ru
 | `src/i18n/*.ts(x)` | the window's dictionaries, `t()`, and the locale provider |
 | `src/index.css` | Tailwind entry: base styles plus the shared `@layer components` recipes |
 
+## Contributing
+
+Issues and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers what to put in a bug
+report, how to build and test, and what a change has to keep. The short version: keep it small, keep
+it Lenovo-only, and add a test when the logic allows one. Reports from Lenovo models other than the
+one this was built on are especially useful.
+
+## Security
+
+Report vulnerabilities privately, either through GitHub's
+[private vulnerability reporting](https://github.com/fajarwz/lenovo-conservation-scheduler/security/advisories/new)
+or by email to `hi@fajarwz.com`. [SECURITY.md](SECURITY.md) lists what is in scope - and what the app
+touches, so you can judge a report yourself: no network, no admin rights, two files, one registry key.
+
 ## License
 
-MIT - see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE). Copyright (c) 2026 Fajar Windhu Zulfikar.
