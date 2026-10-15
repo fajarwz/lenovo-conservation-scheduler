@@ -4,7 +4,7 @@
 
 A small Windows tray utility that switches Lenovo battery **Conservation Mode** on a schedule.
 
-**Download the latest version: [installer](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-setup.exe) (1.5 MB) or [portable exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-portable.exe) (4.6 MB)**
+**Download the latest version: [installer](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-setup.exe) or [portable exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-portable.exe)**
 
 Both links always serve the newest release, whatever version that is. Windows 10/11 on a Lenovo
 laptop, no administrator rights.
@@ -99,14 +99,14 @@ $after = (Get-Process lenovo-conservation-scheduler).CPU
 
 ## Install
 
-| Download | Size | What it is |
-| --- | --- | --- |
-| [Installer](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-setup.exe) | 1.5 MB | Installs per user, needs no administrator rights, and adds the "start with Windows" option. |
-| [Portable exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-portable.exe) | 4.6 MB | Nothing to install and nothing beside it, everything stays in your own profile - but do not move it after the first run, because the "start with Windows" entry records the path it was launched from. |
+| Download | What it is |
+| --- | --- |
+| [Installer](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-setup.exe) | Installs per user, needs no administrator rights, and adds the "start with Windows" option. |
+| [Portable exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-portable.exe) | Nothing to install and nothing beside it, everything stays in your own profile - but do not move it after the first run, because the "start with Windows" entry records the path it was launched from. |
+| [MSI](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler.msi) | For deploying with a policy - Intune, SCCM, Group Policy. The same app as the installer, packaged as an MSI. |
 
-Both links go through `/releases/latest/download/`, so they always serve the newest release without this
-file needing an edit. The [releases page](../../releases/latest) also carries the MSI and the
-version-named copies of the same builds.
+All three go through `/releases/latest/download/`, so they always serve the newest release without this
+file needing an edit. [RELEASING.md](RELEASING.md) is the release procedure behind them.
 
 Releases are **unsigned**, so Windows warns on the first run: SmartScreen's "Windows protected your
 PC" dialog for any file that was downloaded. Nothing inside the app can avoid that - Windows trusts
