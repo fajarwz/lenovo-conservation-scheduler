@@ -111,19 +111,31 @@ described in two places is how a release page ends up advertising a download tha
 ~~~markdown
 # Lenovo Conservation Scheduler <VERSION>
 
-<one or two sentences: what is new, or "first release" and what it does>
+<one or two sentences: what this release is. For a first release, what the app does>
+
+## What's new
+
+- <the change, in the terms a user feels it in>
+
+## Fixed
+
+- <what was broken, what it did, what it does now>
 
 ## Install
 
-- **Installer**: [Lenovo-Conservation-Scheduler-setup.exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-setup.exe) (<size> MB). Run it: it installs per user, so it needs no administrator rights.
-- **Portable**: [Lenovo-Conservation-Scheduler-portable.exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-portable.exe) (<size> MB). Nothing to install; do not move it after the first run, because the "start with Windows" entry records the path it was launched from.
+| Download | Size | What it is |
+| --- | --- | --- |
+| [Installer](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-setup.exe) | <size> MB | Installs per user, needs no administrator rights, and adds the "start with Windows" option. |
+| [Portable exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-portable.exe) | <size> MB | Nothing to install and nothing beside it; do not move it after the first run, because the "start with Windows" entry records the path it was launched from. |
+| [MSI](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler.msi) | <size> MB | For deploying with a policy - Intune, SCCM, Group Policy. |
 
-Both links are deliberately version-less, so they resolve to the newest release and keep working after
-this one. Deploying it with a policy? The MSI is
-[Lenovo-Conservation-Scheduler.msi](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler.msi).
+All three links are deliberately version-less, so they resolve to the newest release and keep working
+after this one.
 
-These builds are **unsigned**, so Windows warns on the first run: click **More info** -> **Run anyway**,
-or unblock the file first (right-click -> Properties -> **Unblock**). See the README.
+> [!WARNING]
+> These builds are **unsigned**, so SmartScreen shows *"Windows protected your PC"* on the first run:
+> click **More info** -> **Run anyway**, or unblock the file first (right-click -> Properties ->
+> **Unblock**). A code-signing certificate is what removes the dialog; there is none in <VERSION>.
 
 ## Checking your download
 
