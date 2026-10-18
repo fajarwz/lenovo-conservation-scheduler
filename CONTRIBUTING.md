@@ -58,11 +58,16 @@ Note that `npm run dev` alone only serves the frontend to a browser, where every
 
 ## Translating
 
-The app ships English and Indonesian. Adding a language is three steps, described in the
-[README](README.md#adding-a-language): a `Lang` variant plus a `Strings` table in
-`src-tauri/src/i18n.rs`, a dictionary in `src/i18n/<code>.ts` typed as `typeof enUS`, and an entry in
-`LOCALES`. Both tables are compiler-checked, so a missing key fails the build rather than showing an
-empty label.
+The app ships English and Indonesian. Adding a language is three steps:
+
+1. `src-tauri/src/i18n.rs`: add the code to `Lang`, its `parse` arm, its `detect` arm if the OS can
+   report it, and a `Strings` table (the compiler refuses a table with a missing field).
+2. `src/i18n/<code>.ts`: copy `en-US.ts`, translate the values, and type it as `typeof enUS` so a
+   missing or misspelled key fails the build.
+3. `src/i18n/index.tsx`: add the code to `Locale`, `LOCALES` and `DICTIONARIES`.
+
+The `id` pair is a worked example of all three steps. Both tables are compiler-checked, so a missing
+key fails the build rather than showing an empty label.
 
 Corrections to the existing Indonesian text are welcome too - it was not written by a native speaker.
 

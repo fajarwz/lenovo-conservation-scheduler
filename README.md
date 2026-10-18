@@ -2,102 +2,55 @@
 
 <img src="assets/logo.png" width="128" alt="App icon: a half-charged battery with a clock badge, on a Lenovo-red badge">
 
-[![Latest release](https://img.shields.io/github/v/release/fajarwz/lenovo-conservation-scheduler?sort=semver)](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest) [![Downloads](https://img.shields.io/github/downloads/fajarwz/lenovo-conservation-scheduler/total?label=downloads)](https://github.com/fajarwz/lenovo-conservation-scheduler/releases)
+[![Latest release](https://img.shields.io/github/v/release/fajarwz/lenovo-conservation-scheduler?sort=semver)](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest) [![Downloads](https://img.shields.io/github/downloads/fajarwz/lenovo-conservation-scheduler/total?label=downloads)](https://github.com/fajarwz/lenovo-conservation-scheduler/releases) [![MIT](https://img.shields.io/badge/license-MIT-16a34a.svg)](LICENSE)
 
 A small Windows tray utility that switches Lenovo battery **Conservation Mode** on a schedule.
 
-**Download the latest version: [installer](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-setup.exe) or [portable exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-portable.exe)**
-
-Both links always serve the newest release, whatever version that is. Windows 10/11 on a Lenovo
-laptop, no administrator rights.
+**Download: [installer](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-setup.exe) or [portable exe](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest/download/Lenovo-Conservation-Scheduler-portable.exe)** - always the newest release. Windows 10/11 on a Lenovo laptop, no administrator rights.
 
 <img src="assets/screenshots/window.png" width="760" alt="The settings window: charge at 80% and charging paused, the Conservation Mode switch, and two weekday schedules (05:00 off, 09:00 on)">
 
-The case it exists for: keep Conservation Mode on while the laptop is at home so the battery sits
-around 75-80%, and have it switch off early enough to charge to 100% before leaving.
+The case it exists for: keep Conservation Mode on at home so the battery sits around 75-80%, and have it switch off early enough to reach 100% before you leave.
 
 ```
 05:00  ->  Conservation Mode OFF   (Monday to Friday)
 09:00  ->  Conservation Mode ON    (Monday to Friday)
 ```
 
-> Not affiliated with, endorsed by, or sponsored by Lenovo. The name refers to the feature the app
-> automates: it drives Lenovo's own software in place and bundles nothing from Lenovo.
+> Not affiliated with Lenovo. It drives Lenovo's own software in place and bundles nothing from Lenovo.
 
 ## How it works
 
-- **Lenovo control** uses Lenovo Vantage's own native `PowerBattery.dll`, loaded in place from
-  `C:\ProgramData\Lenovo\Vantage\Addins\IdeaNotebookAddin\<version>\PowerBattery.dll`. Nothing from
-  Vantage is bundled, copied or redistributed. If the DLL is missing - Vantage not installed, or a
-  model without conservation-mode support - the app says so and keeps running with manual switching
-  disabled instead of failing.
-- **No polling.** A single background thread blocks on a waitable timer armed for the next
-  occurrence, plus Windows events for "settings edited" and "resumed from sleep". While idle the
-  process has one sleeping thread: no ticks, no intervals, no CPU.
-- **Reconciliation.** Whenever it wakes - at startup, after a resume, after an edit - it asks "what
-  does the schedule expect right now?" and writes only if the current mode differs. That single rule
-  is what makes a laptop that slept through 05:00 correct itself on waking at 07:30.
-- **A tray menu** for opening the settings, switching Conservation Mode by hand, and exiting. Left-click
-  the icon to open the window, right-click for the menu:
+- **Lenovo control** goes through Vantage's own `PowerBattery.dll`, loaded in place from
+  `C:\ProgramData\Lenovo\Vantage\Addins\IdeaNotebookAddin\<version>\`. Nothing is bundled or
+  redistributed; if the DLL is missing the app says so and keeps running with manual switching
+  disabled.
+- **No polling.** One thread, blocked on a waitable timer for the next occurrence plus Windows events
+  for "settings edited" and "resumed from sleep". Zero CPU while idle.
+- **Reconcile, never replay.** On every wake it asks what the schedule expects *now* and writes only
+  if the mode differs - which is why a laptop that slept through 05:00 corrects itself at 07:30.
+- **Manual changes win** until the next scheduled occurrence.
+- **The tray menu** opens the settings, switches the mode by hand, and exits. Left-click opens the
+  window, right-click shows the menu:
 
   <img src="assets/screenshots/tray.png" width="330" alt="The tray icon's right-click menu: the battery percentage and Conservation Mode state, Open settings, the two manual switches, and Exit">
-- **Manual changes win until the next occurrence.** Flip the mode by hand from the window or the tray
-  and the schedule leaves it alone until its next scheduled change.
-- **Nothing runs until you need it.** At startup only the tray icon exists. The settings window -
-  and with it the whole WebView2 process tree, roughly 350 MB - is created when you open it and
-  destroyed when you close it, so while idle the app is one process of about 10-20 MB (2-4 MB
-  private) whether or not settings have ever been opened. Closing the window does not quit: the app
-  lives in the tray until you choose Exit.
-- **One copy at a time.** Launching the executable again does not start a second copy: the instance
-  already running shows its window and the new process exits. Two copies would mean two tray icons
-  and two schedulers racing over the same setting.
-- **Notifications are the app's own.** Windows attributes a toast to an app identity, and an app
-  without an installer has to do two things: register that identity (two values under
-  `HKCU\Software\Classes\AppUserModelId\com.fajarwz.lenovo-conservation-scheduler`) and send the toast
-  under it. This app does both. Tauri's notification plugin deliberately leaves that id unset for an
-  executable that is not installed, so a build run straight from `target/release` would otherwise
-  report itself as PowerShell - its icon and its name.
-- **It tells you when it is invisible.** With settings already saved, launching it goes straight to
-  the tray, so it sends a notification saying it is running in the background. A start from the
-  Windows login entry stays quiet on purpose.
+- **One copy at a time**, one tray icon. Launching it again just shows the running window.
+- **Notifications under its own name and icon**, not PowerShell's, and a toast on a manual launch that
+  went straight to the tray.
 
-## Performance
+## Footprint
 
-Measured on the release build, on the laptop this was written for (Lenovo Yoga Slim 7 14IMH9,
-Windows 11). The whole process tree is counted - the app plus every WebView2 process it starts - so
-these are the numbers Task Manager shows for it.
+Measured on the release build (Lenovo Yoga Slim 7 14IMH9, Windows 11), whole process tree included:
 
-| State | Processes | Working set | Private memory | CPU used while idle |
+| State | Processes | Working set | Private memory | CPU while idle |
 | --- | --- | --- | --- | --- |
 | Running, settings never opened | 1 | ~15 MB | ~3 MB | 0.000 s over 62 s |
 | Settings window open | 7 | ~350 MB | ~180 MB | the browser's, while you look at it |
 | After closing the window | 1 | ~23 MB | ~5 MB | 0.000 s |
 
-- **Battery.** Idle, the process is asleep on a waitable timer: no polling loop, no repeating
-  interval, nothing to wake up for. It used 0.000 s of CPU across a full minute of idling, sampled
-  62 seconds apart, so its cost is below the clock's own resolution. It wakes a handful of times a
-  day - once per scheduled change, and once when you edit a setting.
-- **Memory.** About 4 MB private while idle: that is the entire cost of having the tray icon there.
-  The ~350 MB belongs to WebView2, Windows' own Chromium engine, and only while the settings window
-  is open. No app can shrink Chromium; it can only avoid starting it, which is why the window is
-  created on demand and destroyed on close. Close it and all six browser processes go away, leaving
-  the one process at about 5 MB.
-- **Disk and network.** While idle the app owns no sockets (measured: 0) and writes nothing. The
-  writes in normal use are the log line for a scheduled change, the config file when you edit a
-  setting, and - once per start - the two registry values that name the app to Windows for its
-  notifications, plus the icon file those values point at (written only when it is missing or from
-  an older build).
-- **One copy.** Launching it again does not add a second icon or a second scheduler: the running
-  instance shows its window and the new process exits.
-
-If you would rather check than take my word for it:
-
-```powershell
-$before = (Get-Process lenovo-conservation-scheduler).CPU
-Start-Sleep 60
-$after = (Get-Process lenovo-conservation-scheduler).CPU
-"CPU used in 60 s: {0:N3} s" -f ($after - $before)
-```
+The ~350 MB belongs to WebView2, Windows' own Chromium engine, and only while the window is open -
+which is why the window is created on demand and destroyed on close. Idle the app owns no sockets and
+writes nothing.
 
 ## Install
 
@@ -111,29 +64,22 @@ All three go through `/releases/latest/download/`, so they always serve the newe
 file needing an edit. [RELEASING.md](RELEASING.md) is the release procedure behind them.
 
 Releases are **unsigned**, so Windows warns on the first run: SmartScreen's "Windows protected your
-PC" dialog for any file that was downloaded. Nothing inside the app can avoid that - Windows trusts
-software by signature and reputation, and this project has neither yet. Two ways through it:
-
-- Click **More info** -> **Run anyway** each time you download a new copy, or
-- clear the file's mark-of-the-web first, which is Windows' own way of recording that you trust it:
-  right-click the file -> **Properties** -> tick **Unblock** -> **OK**, or in PowerShell
-  `Unblock-File .\Lenovo-Conservation-Scheduler-setup.exe`.
-
-The release notes list a SHA-256 for each download, so you can check the file you have is the one that
-was built.
+PC" dialog for any downloaded file. Click **More info** -> **Run anyway**, or unblock the file first
+(right-click -> **Properties** -> **Unblock** -> **OK**, or `Unblock-File .\Lenovo-Conservation-Scheduler-setup.exe`).
+The release notes carry a SHA-256 for each download.
 
 ## Requirements
 
 - Windows 10/11 on a Lenovo laptop that supports Conservation Mode.
-- Lenovo Vantage installed (the app reads `PowerBattery.dll` from it) and the
+- Lenovo Vantage installed (it reads `PowerBattery.dll` from it) and the
   `Lenovo Notebook ITS Service` running.
 - No administrator rights: it runs as a normal user process.
 - No network access, no telemetry, no database, no backend, no account.
 
 ## Settings
 
-Configuration is one JSON file at
-`%APPDATA%\com.fajarwz.lenovo-conservation-scheduler\config.json`, which can be edited by hand:
+Configuration is one JSON file at `%APPDATA%\com.fajarwz.lenovo-conservation-scheduler\config.json`,
+which can be edited by hand:
 
 ```json
 {
@@ -154,45 +100,16 @@ Configuration is one JSON file at
 }
 ```
 
-`time` is 24-hour local `HH:MM`, `action` is `conservation_on` or `conservation_off`, and a schedule
-with an empty `days` list never fires. A file that cannot be parsed is kept as `config.corrupt` and
-defaults are used, so nothing is lost silently; missing or unknown fields fall back to defaults -
-`scheduleEnabled`, `startWithWindows` and `notifyOnChange` are `true`, `locale` and `timeFormat`
-follow Windows.
-
-`locale` picks the language of the window, the tray menu and the notifications: `en-US` or `id`.
-A fresh install uses whatever Windows is set to, and the value is read leniently - `en`, `en-GB`,
-`id-ID` all work, and anything unrecognised falls back to the OS language rather than failing the
-file.
-
-`timeFormat` is how times are written in the window: `24h` for `17:00`, `12h` for `5:00 PM`. It is a
-separate choice from the language on purpose - plenty of people read English and still write 17:30 -
-and a fresh install again follows Windows. The file always stores 24-hour `HH:MM` in `time` whatever
-this says: the setting changes what you read, never what is saved.
-
-The time in a schedule row is picked from dropdowns rather than a browser time field, because
-Chromium's own field takes its format from Windows and ignores the language attribute, so it cannot
-follow this setting.
-
-## Adding a language
-
-1. `src-tauri/src/i18n.rs`: add the code to `Lang`, its `parse` arm, its `detect` arm if the OS can
-   report it, and a `Strings` table (the compiler refuses a table with a missing field).
-2. `src/i18n/<code>.ts`: copy `en-US.ts`, translate the values, and type it as `typeof enUS` so a
-   missing or misspelled key fails the build.
-3. `src/i18n/index.tsx`: add the code to `Locale`, `LOCALES` and `DICTIONARIES`.
-
-The `id` pair is a worked example of all three steps.
+- `time` is 24-hour local `HH:MM`, `action` is `conservation_on` or `conservation_off`
+- `locale` - `en-US` or `id`, the language of the window, tray menu and notifications. Read leniently:
+  `en`, `en-GB`, `id-ID` all work.
+- `timeFormat` - `24h` or `12h`, how times are written in the window only. The file always stores
+  24-hour `HH:MM`.
 
 ## Logs
 
-The app logs what it does and why, one line per event: the config it loaded, the notification
-identity it registered, the moment it armed, each wake-up ("scheduled moment reached" / "resumed from
-sleep" / "schedules changed"), every mode it changed, and any failure. Nothing is logged while it
-waits.
-
-In a development build that goes to the console; in a release build a windowed process has no
-console, so it is also written to:
+One line per event: the config it loaded, the moment it armed, each wake-up, every mode it changed and
+any failure. Nothing is logged while it waits. In a release build it writes to:
 
 ```
 %LOCALAPPDATA%\com.fajarwz.lenovo-conservation-scheduler\logs\lenovo-conservation-scheduler.log
@@ -204,79 +121,27 @@ If a switch did not happen, that file says why.
 
 ```bash
 npm install
-npm run tauri dev      # run the app
+npm run tauri dev      # the app
 npm run tauri build    # executable + installers
 ```
 
-Tests, from `src-tauri`:
+Tests: `cd src-tauri && cargo test -- --test-threads=1` - serial on purpose, one test toggles the real
+charging mode. [CONTRIBUTING.md](CONTRIBUTING.md#development) has the full check list.
 
-```bash
-cargo test -- --test-threads=1
-```
-
-`--test-threads=1` matters: one test toggles the real charging mode on the laptop and restores it.
-Other tests cover the scheduler logic (next event, weekday filtering, midnight crossing, duplicates,
-disabled entries, startup and wake reconciliation) and the JSON persistence round trip.
-
-Always build the executable through the Tauri CLI:
-
-```bash
-npm run tauri build -- --no-bundle   # executable only; drop the flag to also make installers
-```
-
-Two traps, and both of them look like the app is broken rather than the build:
-
-- **Never use a bare `cargo build --release`.** Without the `custom-protocol` feature the `tauri`
-  crate compiles as *dev* (`tauri/build.rs`: `let dev = !custom_protocol`), so the window loads
-  `devUrl` (`http://localhost:1420`) instead of the embedded frontend - and with no Vite server
-  running you get Chromium's "can't reach this page". The CLI enables that feature; cargo on its
-  own does not. Diagnose by listening on port 1420 while the app starts: a production build makes
-  zero connections to it. The production binary is also noticeably larger, because it now carries
-  the compressed frontend.
-- **A rebuilt `dist/` does not relink the binary** (cargo does not treat it as a change), so a
-  frontend-only edit needs the crate touched before the build:
-
-```bash
-npm run build && touch src-tauri/src/lib.rs src-tauri/src/main.rs && npm run tauri build -- --no-bundle
-```
-
-With `npm run tauri dev` the dev URL is the *correct* target, because Vite is running.
-
-## Layout
-
-| Path | Purpose |
-| --- | --- |
-| `src-tauri/src/config.rs` | schedules and options, JSON persistence, validation |
-| `src-tauri/src/scheduler.rs` | pure decisions: what is expected now, when the next event is |
-| `src-tauri/src/timer.rs` | waitable timer, settings event, resume notification |
-| `src-tauri/src/lenovo.rs` | the only module with Lenovo FFI (`PowerBattery.dll`) |
-| `src-tauri/src/power.rs` | battery percentage, AC state, charging flag |
-| `src-tauri/src/i18n.rs` | the strings Rust needs itself: tray menu, notifications, errors |
-| `src-tauri/src/identity.rs` | registers the app's notification identity and its icon file |
-| `src-tauri/src/lib.rs` | state, tray menu, commands, scheduler thread, toasts |
-| `src/App.tsx` | settings window: state, auto-save, add/delete, the three sections |
-| `src/components/*.tsx` | `Fact`, `Toggle`, `TimeField`, `Banner`, `DayPicker`, `ScheduleRow` |
-| `src/api.ts` | typed wrappers for the three commands and the state event |
-| `src/i18n/*.ts(x)` | the window's dictionaries, `t()`, the locale provider and `time.ts` |
-| `src/index.css` | Tailwind entry: base styles plus the shared `@layer components` recipes |
+Build the executable only through the Tauri CLI: a bare `cargo build --release` skips the
+`custom-protocol` feature and ships a window that tries to load `http://localhost:1420`.
+[AGENTS.md](AGENTS.md) documents the architecture and the rest of the build traps.
 
 ## Contributing
 
-Issues and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers what to put in a bug
-report, how to build and test, and what a change has to keep. The short version: keep it small, keep
-it Lenovo-only, and add a test when the logic allows one. Reports from Lenovo models other than the
-one this was built on are especially useful.
-
-[AGENTS.md](AGENTS.md) documents the architecture, the conventions and the build traps that have
-already cost time - read it first if you are pointing a coding agent at this repository.
+Issues and pull requests are welcome - especially reports from Lenovo models other than the one this
+was built on. [CONTRIBUTING.md](CONTRIBUTING.md) covers bug reports, translations and what a change has
+to keep.
 
 ## Security
 
-Report vulnerabilities privately, either through GitHub's
-[private vulnerability reporting](https://github.com/fajarwz/lenovo-conservation-scheduler/security/advisories/new)
-or by email to `hi@fajarwz.com`. [SECURITY.md](SECURITY.md) lists what is in scope - and what the app
-touches, so you can judge a report yourself: no network, no admin rights, three local files, and two
-registry keys under `HKCU`.
+Report vulnerabilities privately via [GitHub](https://github.com/fajarwz/lenovo-conservation-scheduler/security/advisories/new)
+or `hi@fajarwz.com`. [SECURITY.md](SECURITY.md) lists the scope.
 
 ## License
 
