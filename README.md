@@ -2,7 +2,7 @@
 
 <img src="assets/logo.png" width="128" alt="App icon: a half-charged battery with a clock badge, on a Lenovo-red badge">
 
-[![Latest release](https://img.shields.io/github/v/release/fajarwz/lenovo-conservation-scheduler?sort=semver)](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest) [![Downloads](https://img.shields.io/github/downloads/fajarwz/lenovo-conservation-scheduler/total?label=downloads)](https://github.com/fajarwz/lenovo-conservation-scheduler/releases) [![MIT](https://img.shields.io/badge/license-MIT-16a34a.svg)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/fajarwz/lenovo-conservation-scheduler)](https://github.com/fajarwz/lenovo-conservation-scheduler/releases/latest) [![Downloads](https://img.shields.io/github/downloads/fajarwz/lenovo-conservation-scheduler/total?label=downloads)](https://github.com/fajarwz/lenovo-conservation-scheduler/releases) [![MIT](https://img.shields.io/badge/license-MIT-16a34a.svg)](LICENSE)
 
 A small Windows tray utility that switches Lenovo battery **Conservation Mode** on a schedule.
 
